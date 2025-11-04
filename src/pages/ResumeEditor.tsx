@@ -97,7 +97,7 @@ const DraggableBullet: React.FC<DraggableBulletProps> = ({ bullet, onToggle, onE
 };
 
 const ResumeEditor: React.FC = () => {
-  const { data, addCompany, updateCompany, deleteCompany, toggleBulletSelection, addSummary, updateSummary, deleteSummary, selectSummary, saveResumeVersion, toggleCompanyVisibility, toggleProjectVisibility, addBullet, updateBullet, deleteBullet, addEducation, updateEducation, deleteEducation, addSkill, updateSkill, deleteSkill, addCertification, updateCertification, deleteCertification, addPosition, updatePosition, deletePosition } = useAppData();
+  const { data, addCompany, updateCompany, deleteCompany, toggleBulletSelection, addSummary, updateSummary, deleteSummary, selectSummary, toggleCompanyVisibility, toggleProjectVisibility, addBullet, updateBullet, deleteBullet, addEducation, updateEducation, deleteEducation, addSkill, updateSkill, deleteSkill, addCertification, updateCertification, deleteCertification, addPosition, updatePosition, deletePosition } = useAppData();
   const { toast } = useToast();
   
   const [expandedCompanies, setExpandedCompanies] = useState<string[]>(['tech-corp']);
@@ -460,23 +460,6 @@ const ResumeEditor: React.FC = () => {
     }
   };
 
-  const handleSaveVersion = () => {
-    const selectedBulletIds = data.bullets.filter(b => b.isSelected).map(b => b.id);
-    const selectedSummaryId = data.summaries.find(s => s.isSelected)?.id;
-    const selectedCompanyIds = data.companies.filter(c => (c as any).isVisible !== false).map(c => c.id);
-    
-    saveResumeVersion({
-      name: data.currentEditing.resumeName || 'Untitled Resume',
-      description: 'Resume version snapshot',
-      tags: [],
-      summaryId: selectedSummaryId,
-      selectedBullets: selectedBulletIds,
-      selectedCompanies: selectedCompanyIds,
-    });
-    
-    toast({ title: 'Resume version saved', description: 'Your resume has been saved successfully.' });
-  };
-
   const handleExport = () => {
     toast({ title: 'Export feature', description: 'Export functionality coming soon!' });
   };
@@ -772,8 +755,7 @@ const ResumeEditor: React.FC = () => {
       {/* Resizable Preview */}
       {showPreview && (
         <ResizablePanel defaultWidth={500} minWidth={300} maxWidth={800}>
-          <ResumePreview
-            onSaveVersion={handleSaveVersion}
+          <ResumePreview 
             onExport={handleExport}
           />
         </ResizablePanel>

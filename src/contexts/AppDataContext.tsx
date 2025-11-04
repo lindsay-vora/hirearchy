@@ -18,6 +18,7 @@ interface AppDataContextType {
   deleteSummary: (id: string) => void;
   selectSummary: (id: string) => void;
   saveResumeVersion: (version: Omit<ResumeVersion, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  updateResumeVersion: (id: string, updates: Partial<ResumeVersion>) => void;
   loadResumeVersion: (id: string) => void;
   deleteResumeVersion: (id: string) => void;
   toggleCompanyVisibility: (id: string) => void;
@@ -162,6 +163,19 @@ export const AppDataProvider: React.FC<{ children: ReactNode }> = ({ children })
     setData(prev => ({
       ...prev,
       resumeVersions: [...prev.resumeVersions, newVersion],
+      currentEditing: {
+        ...prev.currentEditing,
+        resumeVersionId: newVersion.id,
+      },
+    }));
+  };
+
+  const updateResumeVersion = (id: string, updates: Partial<ResumeVersion>) => {
+    setData(prev => ({
+      ...prev,
+      resumeVersions: prev.resumeVersions.map(v =>
+        v.id === id ? { ...v, ...updates, updatedAt: new Date().toISOString() } : v
+      ),
     }));
   };
 
@@ -344,6 +358,7 @@ export const AppDataProvider: React.FC<{ children: ReactNode }> = ({ children })
         deleteSummary,
         selectSummary,
         saveResumeVersion,
+        updateResumeVersion,
         loadResumeVersion,
         deleteResumeVersion,
         toggleCompanyVisibility,

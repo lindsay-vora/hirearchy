@@ -10,11 +10,12 @@ import { ConfirmDialog } from '@/components/dialogs/ConfirmDialog';
 import { EditDialog } from '@/components/dialogs/EditDialog';
 
 const SavedResumes: React.FC = () => {
-  const { data, loadResumeVersion, deleteResumeVersion, saveResumeVersion } = useAppData();
+  const { data, loadResumeVersion, deleteResumeVersion, saveResumeVersion, updateResumeVersion } = useAppData();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [confirmDialog, setConfirmDialog] = useState<any>(null);
   const [editDialog, setEditDialog] = useState<any>(null);
+  const [loadWarningDialog, setLoadWarningDialog] = useState<{ resumeId: string; resumeName: string } | null>(null);
   
   const resumes = data.resumeVersions.map(rv => ({
     ...rv,
@@ -26,10 +27,41 @@ const SavedResumes: React.FC = () => {
     modified: new Date(rv.updatedAt).toLocaleDateString(),
   }));
 
-  const handleLoad = (id: string) => {
+  const hasUnsavedChanges = () => {
+    if (!data.currentEditing.resumeVersionId) return false;
+    const currentVersion = data.resumeVersions.find(v => v.id === data.currentEditing.resumeVersionId);
+    if (!currentVersion) return false;
+    
+    const currentSelections = {
+      summaryId: data.summaries.find(s => s.isSelected)?.id,
+      selectedBullets: data.bullets.filter(b => b.isSelected).map(b => b.id).sort(),
+      selectedCompanies: data.companies.filter(c => c.isVisible !== false).map(c => c.id).sort(),
+    };
+    
+    return (
+      currentSelections.summaryId !== currentVersion.summaryId ||
+      JSON.stringify(currentSelections.selectedBullets) !== JSON.stringify([...currentVersion.selectedBullets].sort()) ||
+      JSON.stringify(currentSelections.selectedCompanies) !== JSON.stringify([...currentVersion.selectedCompanies].sort())
+    );
+  };
+
+  const handleLoad = (id: string, name: string) => {
+    if (hasUnsavedChanges()) {
+      setLoadWarningDialog({ resumeId: id, resumeName: name });
+      return;
+    }
     loadResumeVersion(id);
     navigate('/');
     toast({ title: 'Resume loaded' });
+  };
+
+  const confirmLoad = () => {
+    if (loadWarningDialog) {
+      loadResumeVersion(loadWarningDialog.resumeId);
+      navigate('/');
+      toast({ title: 'Resume loaded' });
+      setLoadWarningDialog(null);
+    }
   };
 
   const handleDelete = (resume: any) => {
@@ -44,9 +76,18 @@ const SavedResumes: React.FC = () => {
     });
   };
 
+  const handleEdit = (resume: any) => {
+    setEditDialog({
+      open: true,
+      action: 'edit',
+      data: resume,
+    });
+  };
+
   const handleCopy = (resume: any) => {
     setEditDialog({
       open: true,
+      action: 'copy',
       data: resume,
     });
   };
@@ -117,7 +158,7 @@ const SavedResumes: React.FC = () => {
         <div className="grid grid-cols-3 gap-4 mb-6">
           <div className="border border-border rounded-lg p-4">
             <p className="text-sm text-muted-foreground mb-1">Total Versions</p>
-            <p className="text-3xl font-bold">4</p>
+            <p className="text-3xl font-bold">{data.resumeVersions.length}</p>
           </div>
           <div className="border border-border rounded-lg p-4">
             <p className="text-sm text-muted-foreground mb-1">Default Resume</p>
@@ -171,18 +212,16 @@ const SavedResumes: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
-                  {!resume.isDefault && (
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <Star className="h-4 w-4" />
-                    </Button>
-                  )}
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(resume)}>
+                    <Pencil className="h-4 w-4" />
+                  </Button>
                   <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleCopy(resume)}>
                     <Copy className="h-4 w-4" />
                   </Button>
                   <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(resume)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
-                  <Button className="ml-2" onClick={() => handleLoad(resume.id)}>
+                  <Button className="ml-2" onClick={() => handleLoad(resume.id, resume.name)}>
                     <Eye className="h-4 w-4 mr-2" />
                     Load
                   </Button>
@@ -200,15 +239,59 @@ const SavedResumes: React.FC = () => {
         <EditDialog
           open={editDialog.open}
           onOpenChange={(open) => !open && setEditDialog(null)}
-          title="Copy Resume"
-          fields={[{ name: 'name', label: 'Resume Name', value: `${editDialog.data.name} (Copy)` }]}
+          title={editDialog.action === 'edit' ? 'Edit Resume' : 'Copy Resume'}
+          fields={[
+            { 
+              name: 'name', 
+              label: 'Resume Name', 
+              value: editDialog.action === 'edit' ? editDialog.data.name : `${editDialog.data.name} (Copy)` 
+            },
+            { 
+              name: 'description', 
+              label: 'Description', 
+              value: editDialog.data.description || '', 
+              type: 'textarea' 
+            },
+            { 
+              name: 'tags', 
+              label: 'Tags (comma-separated)', 
+              value: editDialog.data.tags?.join(', ') || '' 
+            },
+          ]}
           onSave={(values) => {
-            const version = data.resumeVersions.find(v => v.id === editDialog.data.id);
-            if (version) {
-              saveResumeVersion({ ...version, name: values.name });
-              toast({ title: 'Resume copied' });
+            const tags = values.tags.split(',').map(t => t.trim()).filter(Boolean);
+            
+            if (editDialog.action === 'edit') {
+              updateResumeVersion(editDialog.data.id, {
+                name: values.name,
+                description: values.description,
+                tags,
+              });
+              toast({ title: 'Resume updated' });
+            } else {
+              const version = data.resumeVersions.find(v => v.id === editDialog.data.id);
+              if (version) {
+                saveResumeVersion({
+                  name: values.name,
+                  description: values.description,
+                  tags,
+                  summaryId: version.summaryId,
+                  selectedBullets: version.selectedBullets,
+                  selectedCompanies: version.selectedCompanies,
+                });
+                toast({ title: 'Resume copied' });
+              }
             }
           }}
+        />
+      )}
+      {loadWarningDialog && (
+        <ConfirmDialog
+          open={true}
+          onOpenChange={(open) => !open && setLoadWarningDialog(null)}
+          title="Unsaved Changes"
+          description={`You have unsaved changes in the current resume. Loading "${loadWarningDialog.resumeName}" will discard these changes. Do you want to continue?`}
+          onConfirm={confirmLoad}
         />
       )}
     </div>

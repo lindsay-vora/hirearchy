@@ -1,18 +1,44 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Save, Download } from 'lucide-react';
 import { useAppData } from '@/contexts/AppDataContext';
+import { SaveVersionDialog } from '@/components/dialogs/SaveVersionDialog';
+import { useToast } from '@/hooks/use-toast';
 
 interface ResumePreviewProps {
-  onSaveVersion: () => void;
   onExport: () => void;
 }
 
 const ResumePreview: React.FC<ResumePreviewProps> = ({ 
-  onSaveVersion, 
   onExport 
 }) => {
-  const { data } = useAppData();
+  const { data, saveResumeVersion, updateResumeVersion } = useAppData();
+  const { toast } = useToast();
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+
+  const handleSaveVersion = (
+    action: 'overwrite' | 'new', 
+    details?: { name: string; description: string; tags: string[] }
+  ) => {
+    if (action === 'overwrite' && data.currentEditing.resumeVersionId) {
+      updateResumeVersion(data.currentEditing.resumeVersionId, {
+        summaryId: data.summaries.find(s => s.isSelected)?.id,
+        selectedBullets: data.bullets.filter(b => b.isSelected).map(b => b.id),
+        selectedCompanies: data.companies.filter(c => c.isVisible !== false).map(c => c.id),
+      });
+      toast({ title: 'Resume version updated' });
+    } else if (action === 'new' && details) {
+      saveResumeVersion({
+        name: details.name,
+        description: details.description,
+        tags: details.tags,
+        summaryId: data.summaries.find(s => s.isSelected)?.id,
+        selectedBullets: data.bullets.filter(b => b.isSelected).map(b => b.id),
+        selectedCompanies: data.companies.filter(c => c.isVisible !== false).map(c => c.id),
+      });
+      toast({ title: 'New resume version created' });
+    }
+  };
   
   const selectedSummary = data.summaries.find(s => s.isSelected);
   const selectedBullets = data.bullets.filter(b => b.isSelected);
@@ -28,7 +54,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
         <h2 className="text-xl font-bold mb-1">Resume Preview</h2>
         <p className="text-sm text-muted-foreground mb-3">Live preview of your resume</p>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={onSaveVersion}>
+          <Button variant="outline" size="sm" onClick={() => setSaveDialogOpen(true)}>
             <Save className="h-4 w-4 mr-2" />
             Save Version
           </Button>
@@ -162,6 +188,14 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
           Showing {visibleCompanies.length} companies • {selectedBullets.length} bullet points
         </div>
       </div>
+
+      <SaveVersionDialog
+        open={saveDialogOpen}
+        onOpenChange={setSaveDialogOpen}
+        currentVersionId={data.currentEditing.resumeVersionId}
+        currentVersionName={data.currentEditing.resumeName}
+        onSave={handleSaveVersion}
+      />
     </div>
   );
 };
