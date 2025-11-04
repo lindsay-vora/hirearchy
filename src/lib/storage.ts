@@ -115,7 +115,14 @@ export const loadData = (): AppData => {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
-      return JSON.parse(stored);
+      const parsedData = JSON.parse(stored);
+      // Ensure currentEditing exists for backward compatibility
+      if (!parsedData.currentEditing) {
+        parsedData.currentEditing = {
+          resumeName: 'Software Engineering - FAANG',
+        };
+      }
+      return parsedData;
     }
   } catch (error) {
     console.error('Failed to load data:', error);
@@ -150,6 +157,12 @@ export const importData = (file: File): Promise<AppData> => {
     reader.onload = (e) => {
       try {
         const data = JSON.parse(e.target?.result as string);
+        // Ensure currentEditing exists for backward compatibility
+        if (!data.currentEditing) {
+          data.currentEditing = {
+            resumeName: 'Software Engineering - FAANG',
+          };
+        }
         resolve(data);
       } catch (error) {
         reject(new Error('Invalid JSON file'));
