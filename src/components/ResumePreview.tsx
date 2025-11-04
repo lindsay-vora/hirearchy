@@ -72,12 +72,14 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
                   {company.positions.map((position) => (
                     <div key={position.id} className="mb-4">
                       <div className="flex justify-between items-baseline mb-1">
-                        <h3 className="font-bold">{position.title}</h3>
+                        <div>
+                          <p className="text-sm font-medium">{company.name}</p>
+                          <h3 className="font-bold">{position.title}</h3>
+                        </div>
                         <span className="text-sm">
                           {position.startDate} - {position.endDate || 'Present'}
                         </span>
                       </div>
-                      <p className="text-sm font-medium mb-2">{company.name}</p>
                       
                       {position.projects.map((project) => {
                         const projectBullets = getBulletsForProject(project.id);
@@ -107,25 +109,53 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
             </div>
           )}
 
-          <div className="mb-6">
-            <h2 className="text-lg font-bold mb-2">Education</h2>
-            <div className="flex justify-between items-baseline mb-1">
-              <h3 className="font-medium">Bachelor of Science in Computer Science</h3>
-              <span className="text-sm">2016 - 2020</span>
-            </div>
-            <p className="text-sm">University of Technology</p>
-          </div>
-
-          <div>
-            <h2 className="text-lg font-bold mb-2">Skills</h2>
-            <div className="flex flex-wrap gap-2">
-              {['JavaScript', 'TypeScript', 'React', 'Node.js', 'Python', 'AWS', 'Docker', 'PostgreSQL'].map(skill => (
-                <span key={skill} className="px-3 py-1 bg-gray-200 text-sm rounded">
-                  {skill}
-                </span>
+          {data.education.length > 0 && (
+            <div className="mb-6">
+              <h2 className="text-lg font-bold mb-2">Education</h2>
+              {data.education.map((edu) => (
+                <div key={edu.id} className="mb-3">
+                  <div className="flex justify-between items-baseline mb-1">
+                    <h3 className="font-medium">{edu.degree}</h3>
+                    <span className="text-sm">
+                      {edu.startDate} - {edu.endDate || 'Present'}
+                    </span>
+                  </div>
+                  <p className="text-sm">{edu.institution}</p>
+                  {edu.description && (
+                    <p className="text-sm text-gray-700 mt-1">{edu.description}</p>
+                  )}
+                </div>
               ))}
             </div>
-          </div>
+          )}
+
+          {data.skills.length > 0 && (
+            <div className="mb-6">
+              <h2 className="text-lg font-bold mb-2">Skills</h2>
+              <div className="flex flex-wrap gap-2">
+                {data.skills.map(skill => (
+                  <span key={skill.id} className="px-3 py-1 bg-gray-200 text-sm rounded">
+                    {skill.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {data.certifications.length > 0 && (
+            <div>
+              <h2 className="text-lg font-bold mb-2">Certifications</h2>
+              {data.certifications.map((cert) => (
+                <div key={cert.id} className="mb-2">
+                  <div className="flex justify-between items-baseline">
+                    <h3 className="font-medium">{cert.name}</h3>
+                    <span className="text-sm">{cert.date}</span>
+                  </div>
+                  <p className="text-sm">{cert.issuer}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="mt-8 pt-4 border-t border-gray-300 text-center text-xs text-gray-600">

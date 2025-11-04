@@ -3,7 +3,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Briefcase, ChevronDown, ChevronRight, GripVertical, Pencil, Trash2 } from 'lucide-react';
+import { Briefcase, ChevronDown, ChevronRight, GripVertical, Pencil, Trash2, Plus } from 'lucide-react';
 import { Company } from '@/types';
 
 interface DraggableCompanyProps {
@@ -13,6 +13,7 @@ interface DraggableCompanyProps {
   onEdit: () => void;
   onDelete: () => void;
   onVisibilityToggle: () => void;
+  onAddPosition: () => void;
   children?: React.ReactNode;
 }
 
@@ -23,6 +24,7 @@ export const DraggableCompany: React.FC<DraggableCompanyProps> = ({
   onEdit,
   onDelete,
   onVisibilityToggle,
+  onAddPosition,
   children,
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: company.id });
@@ -54,6 +56,9 @@ export const DraggableCompany: React.FC<DraggableCompanyProps> = ({
         <Briefcase className="h-5 w-5" />
         <span className="font-semibold flex-1">{company.name}</span>
         <span className="text-sm text-muted-foreground mr-2">{company.positions.length} positions</span>
+        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onAddPosition}>
+          <Plus className="h-4 w-4" />
+        </Button>
         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onEdit}>
           <Pencil className="h-4 w-4" />
         </Button>

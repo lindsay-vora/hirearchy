@@ -84,6 +84,9 @@ const defaultData: AppData = {
     { id: 'tag-2', name: 'Backend', color: '#10b981', createdAt: new Date().toISOString() },
     { id: 'tag-3', name: 'Cloud', color: '#f97316', createdAt: new Date().toISOString() },
   ],
+  education: [],
+  skills: [],
+  certifications: [],
   resumeVersions: [],
   currentEditing: {
     resumeName: 'Software Engineering - FAANG',
@@ -101,6 +104,10 @@ export const loadData = (): AppData => {
           resumeName: 'Software Engineering - FAANG',
         };
       }
+      // Ensure new fields exist for backward compatibility
+      if (!parsedData.education) parsedData.education = [];
+      if (!parsedData.skills) parsedData.skills = [];
+      if (!parsedData.certifications) parsedData.certifications = [];
       return parsedData;
     }
   } catch (error) {
@@ -142,6 +149,10 @@ export const importData = (file: File): Promise<AppData> => {
             resumeName: 'Software Engineering - FAANG',
           };
         }
+        // Ensure new fields exist for backward compatibility
+        if (!data.education) data.education = [];
+        if (!data.skills) data.skills = [];
+        if (!data.certifications) data.certifications = [];
         resolve(data);
       } catch (error) {
         reject(new Error('Invalid JSON file'));

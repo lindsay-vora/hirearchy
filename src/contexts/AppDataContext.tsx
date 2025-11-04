@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { AppData, Company, Bullet, Summary, ResumeVersion, Tag } from '@/types';
+import { AppData, Company, Bullet, Summary, ResumeVersion, Tag, Education, Skill, Certification, Position } from '@/types';
 import { loadData, saveData } from '@/lib/storage';
 
 interface AppDataContextType {
@@ -22,6 +22,18 @@ interface AppDataContextType {
   deleteResumeVersion: (id: string) => void;
   toggleCompanyVisibility: (id: string) => void;
   toggleProjectVisibility: (companyId: string, positionId: string, projectId: string) => void;
+  addEducation: (education: Education) => void;
+  updateEducation: (id: string, education: Partial<Education>) => void;
+  deleteEducation: (id: string) => void;
+  addSkill: (skill: Skill) => void;
+  updateSkill: (id: string, skill: Partial<Skill>) => void;
+  deleteSkill: (id: string) => void;
+  addCertification: (certification: Certification) => void;
+  updateCertification: (id: string, certification: Partial<Certification>) => void;
+  deleteCertification: (id: string) => void;
+  addPosition: (companyId: string, position: Position) => void;
+  updatePosition: (companyId: string, positionId: string, position: Partial<Position>) => void;
+  deletePosition: (companyId: string, positionId: string) => void;
 }
 
 const AppDataContext = createContext<AppDataContextType | undefined>(undefined);
@@ -212,6 +224,108 @@ export const AppDataProvider: React.FC<{ children: ReactNode }> = ({ children })
     }));
   };
 
+  const addEducation = (education: Education) => {
+    setData(prev => ({
+      ...prev,
+      education: [...prev.education, education],
+    }));
+  };
+
+  const updateEducation = (id: string, updates: Partial<Education>) => {
+    setData(prev => ({
+      ...prev,
+      education: prev.education.map(e => e.id === id ? { ...e, ...updates } : e),
+    }));
+  };
+
+  const deleteEducation = (id: string) => {
+    setData(prev => ({
+      ...prev,
+      education: prev.education.filter(e => e.id !== id),
+    }));
+  };
+
+  const addSkill = (skill: Skill) => {
+    setData(prev => ({
+      ...prev,
+      skills: [...prev.skills, skill],
+    }));
+  };
+
+  const updateSkill = (id: string, updates: Partial<Skill>) => {
+    setData(prev => ({
+      ...prev,
+      skills: prev.skills.map(s => s.id === id ? { ...s, ...updates } : s),
+    }));
+  };
+
+  const deleteSkill = (id: string) => {
+    setData(prev => ({
+      ...prev,
+      skills: prev.skills.filter(s => s.id !== id),
+    }));
+  };
+
+  const addCertification = (certification: Certification) => {
+    setData(prev => ({
+      ...prev,
+      certifications: [...prev.certifications, certification],
+    }));
+  };
+
+  const updateCertification = (id: string, updates: Partial<Certification>) => {
+    setData(prev => ({
+      ...prev,
+      certifications: prev.certifications.map(c => c.id === id ? { ...c, ...updates } : c),
+    }));
+  };
+
+  const deleteCertification = (id: string) => {
+    setData(prev => ({
+      ...prev,
+      certifications: prev.certifications.filter(c => c.id !== id),
+    }));
+  };
+
+  const addPosition = (companyId: string, position: Position) => {
+    setData(prev => ({
+      ...prev,
+      companies: prev.companies.map(c =>
+        c.id === companyId
+          ? { ...c, positions: [...c.positions, position] }
+          : c
+      ),
+    }));
+  };
+
+  const updatePosition = (companyId: string, positionId: string, updates: Partial<Position>) => {
+    setData(prev => ({
+      ...prev,
+      companies: prev.companies.map(c =>
+        c.id === companyId
+          ? {
+              ...c,
+              positions: c.positions.map(p =>
+                p.id === positionId ? { ...p, ...updates } : p
+              ),
+            }
+          : c
+      ),
+    }));
+  };
+
+  const deletePosition = (companyId: string, positionId: string) => {
+    setData(prev => ({
+      ...prev,
+      companies: prev.companies.map(c =>
+        c.id === companyId
+          ? { ...c, positions: c.positions.filter(p => p.id !== positionId) }
+          : c
+      ),
+      bullets: prev.bullets.filter(b => b.positionId !== positionId),
+    }));
+  };
+
   return (
     <AppDataContext.Provider
       value={{
@@ -234,6 +348,18 @@ export const AppDataProvider: React.FC<{ children: ReactNode }> = ({ children })
         deleteResumeVersion,
         toggleCompanyVisibility,
         toggleProjectVisibility,
+        addEducation,
+        updateEducation,
+        deleteEducation,
+        addSkill,
+        updateSkill,
+        deleteSkill,
+        addCertification,
+        updateCertification,
+        deleteCertification,
+        addPosition,
+        updatePosition,
+        deletePosition,
       }}
     >
       {children}

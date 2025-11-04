@@ -14,6 +14,8 @@ interface DraggablePositionProps {
   company: Company;
   expanded: boolean;
   onToggle: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
   bullets: Bullet[];
   tags: Tag[];
   onAddBullet: (projectId: string, positionId: string, companyId: string) => void;
@@ -24,6 +26,7 @@ interface DraggablePositionProps {
   expandedProjects: string[];
   onToggleProject: (projectId: string) => void;
   onToggleProjectVisibility: (companyId: string, positionId: string, projectId: string) => void;
+  onEditProject: (project: any, positionId: string, companyId: string) => void;
   sensors: any;
 }
 
@@ -32,6 +35,8 @@ export const DraggablePosition: React.FC<DraggablePositionProps> = ({
   company,
   expanded,
   onToggle,
+  onEdit,
+  onDelete,
   bullets,
   tags,
   onAddBullet,
@@ -42,6 +47,7 @@ export const DraggablePosition: React.FC<DraggablePositionProps> = ({
   expandedProjects,
   onToggleProject,
   onToggleProjectVisibility,
+  onEditProject,
   sensors,
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: position.id });
@@ -84,10 +90,10 @@ export const DraggablePosition: React.FC<DraggablePositionProps> = ({
             <Button variant="ghost" size="icon" className="h-8 w-8">
               <Plus className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onEdit}>
               <Pencil className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onDelete}>
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
@@ -129,7 +135,7 @@ export const DraggablePosition: React.FC<DraggablePositionProps> = ({
                       <span className="text-xs text-muted-foreground mr-2">
                         {projectBullets.filter(b => b.isSelected).length}/{projectBullets.length}
                       </span>
-                      <Button variant="ghost" size="icon" className="h-7 w-7">
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onEditProject(project, position.id, company.id)}>
                         <Pencil className="h-3 w-3" />
                       </Button>
                       <Button variant="ghost" size="icon" className="h-7 w-7">

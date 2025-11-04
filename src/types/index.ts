@@ -60,6 +60,32 @@ export interface Summary {
   updatedAt: string;
 }
 
+export interface Education {
+  id: string;
+  degree: string;
+  institution: string;
+  startDate: string;
+  endDate?: string;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Skill {
+  id: string;
+  name: string;
+  category?: string;
+  createdAt: string;
+}
+
+export interface Certification {
+  id: string;
+  name: string;
+  issuer: string;
+  date: string;
+  createdAt: string;
+}
+
 export interface ResumeVersion {
   id: string;
   name: string;
@@ -77,6 +103,9 @@ export interface AppData {
   bullets: Bullet[];
   summaries: Summary[];
   tags: Tag[];
+  education: Education[];
+  skills: Skill[];
+  certifications: Certification[];
   resumeVersions: ResumeVersion[];
   currentEditing: {
     resumeVersionId?: string;

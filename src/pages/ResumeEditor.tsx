@@ -97,7 +97,7 @@ const DraggableBullet: React.FC<DraggableBulletProps> = ({ bullet, onToggle, onE
 };
 
 const ResumeEditor: React.FC = () => {
-  const { data, addCompany, updateCompany, deleteCompany, toggleBulletSelection, addSummary, updateSummary, deleteSummary, selectSummary, saveResumeVersion, toggleCompanyVisibility, toggleProjectVisibility, addBullet, updateBullet, deleteBullet } = useAppData();
+  const { data, addCompany, updateCompany, deleteCompany, toggleBulletSelection, addSummary, updateSummary, deleteSummary, selectSummary, saveResumeVersion, toggleCompanyVisibility, toggleProjectVisibility, addBullet, updateBullet, deleteBullet, addEducation, updateEducation, deleteEducation, addSkill, updateSkill, deleteSkill, addCertification, updateCertification, deleteCertification, addPosition, updatePosition, deletePosition } = useAppData();
   const { toast } = useToast();
   
   const [expandedCompanies, setExpandedCompanies] = useState<string[]>(['tech-corp']);
@@ -265,9 +265,185 @@ const ResumeEditor: React.FC = () => {
     } else if (editDialog.type === 'bullet') {
       updateBullet(editDialog.data.id, { content: values.content });
       toast({ title: 'Bullet updated' });
+    } else if (editDialog.type === 'position') {
+      updatePosition(editDialog.data.companyId, editDialog.data.id, { title: values.title, startDate: values.startDate, endDate: values.endDate || undefined });
+      toast({ title: 'Position updated' });
+    } else if (editDialog.type === 'project') {
+      // Update project within position
+      const company = data.companies.find(c => c.id === editDialog.data.companyId);
+      if (company) {
+        const position = company.positions.find(p => p.id === editDialog.data.positionId);
+        if (position) {
+          const updatedProjects = position.projects.map(proj =>
+            proj.id === editDialog.data.id
+              ? { ...proj, name: values.name, description: values.description }
+              : proj
+          );
+          updatePosition(editDialog.data.companyId, editDialog.data.positionId, { projects: updatedProjects });
+          toast({ title: 'Project updated' });
+        }
+      }
+    } else if (editDialog.type === 'education') {
+      updateEducation(editDialog.data.id, { 
+        degree: values.degree, 
+        institution: values.institution,
+        startDate: values.startDate,
+        endDate: values.endDate || undefined,
+        description: values.description
+      });
+      toast({ title: 'Education updated' });
+    } else if (editDialog.type === 'skill') {
+      updateSkill(editDialog.data.id, { name: values.name, category: values.category });
+      toast({ title: 'Skill updated' });
+    } else if (editDialog.type === 'certification') {
+      updateCertification(editDialog.data.id, { name: values.name, issuer: values.issuer, date: values.date });
+      toast({ title: 'Certification updated' });
     }
     
     setEditDialog(null);
+  };
+
+  // Education handlers
+  const handleAddEducation = () => {
+    const newEducation = {
+      id: `edu-${Date.now()}`,
+      degree: 'Bachelor of Science',
+      institution: 'University Name',
+      startDate: '2016',
+      endDate: '2020',
+      description: '',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    addEducation(newEducation);
+    toast({ title: 'Education added' });
+  };
+
+  const handleEditEducation = (education: any) => {
+    setEditDialog({
+      open: true,
+      type: 'education',
+      data: education,
+    });
+  };
+
+  const handleDeleteEducation = (education: any) => {
+    setConfirmDialog({
+      open: true,
+      title: 'Delete Education',
+      description: `Are you sure you want to delete this education entry?`,
+      onConfirm: () => {
+        deleteEducation(education.id);
+        toast({ title: 'Education deleted' });
+      },
+    });
+  };
+
+  // Skill handlers
+  const handleAddSkill = () => {
+    const newSkill = {
+      id: `skill-${Date.now()}`,
+      name: 'New Skill',
+      category: '',
+      createdAt: new Date().toISOString(),
+    };
+    addSkill(newSkill);
+    toast({ title: 'Skill added' });
+  };
+
+  const handleEditSkill = (skill: any) => {
+    setEditDialog({
+      open: true,
+      type: 'skill',
+      data: skill,
+    });
+  };
+
+  const handleDeleteSkill = (skill: any) => {
+    setConfirmDialog({
+      open: true,
+      title: 'Delete Skill',
+      description: `Are you sure you want to delete "${skill.name}"?`,
+      onConfirm: () => {
+        deleteSkill(skill.id);
+        toast({ title: 'Skill deleted' });
+      },
+    });
+  };
+
+  // Certification handlers
+  const handleAddCertification = () => {
+    const newCert = {
+      id: `cert-${Date.now()}`,
+      name: 'Certification Name',
+      issuer: 'Issuing Organization',
+      date: new Date().getFullYear().toString(),
+      createdAt: new Date().toISOString(),
+    };
+    addCertification(newCert);
+    toast({ title: 'Certification added' });
+  };
+
+  const handleEditCertification = (cert: any) => {
+    setEditDialog({
+      open: true,
+      type: 'certification',
+      data: cert,
+    });
+  };
+
+  const handleDeleteCertification = (cert: any) => {
+    setConfirmDialog({
+      open: true,
+      title: 'Delete Certification',
+      description: `Are you sure you want to delete "${cert.name}"?`,
+      onConfirm: () => {
+        deleteCertification(cert.id);
+        toast({ title: 'Certification deleted' });
+      },
+    });
+  };
+
+  // Position handlers
+  const handleAddPosition = (companyId: string) => {
+    const newPosition: Position = {
+      id: `pos-${Date.now()}`,
+      title: 'Job Title',
+      startDate: '2020-01',
+      endDate: undefined,
+      projects: [],
+    };
+    addPosition(companyId, newPosition);
+    toast({ title: 'Position added' });
+  };
+
+  const handleEditPosition = (position: Position, companyId: string) => {
+    setEditDialog({
+      open: true,
+      type: 'position',
+      data: { ...position, companyId },
+    });
+  };
+
+  const handleDeletePosition = (positionId: string, companyId: string) => {
+    setConfirmDialog({
+      open: true,
+      title: 'Delete Position',
+      description: 'Are you sure you want to delete this position? This will also delete all projects and bullets.',
+      onConfirm: () => {
+        deletePosition(companyId, positionId);
+        toast({ title: 'Position deleted' });
+      },
+    });
+  };
+
+  // Project handlers
+  const handleEditProject = (project: Project, positionId: string, companyId: string) => {
+    setEditDialog({
+      open: true,
+      type: 'project',
+      data: { ...project, positionId, companyId },
+    });
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -430,6 +606,7 @@ const ResumeEditor: React.FC = () => {
                           onEdit={() => handleEditCompany(company)}
                           onDelete={() => handleDeleteCompany(company)}
                           onVisibilityToggle={() => toggleCompanyVisibility(company.id)}
+                          onAddPosition={() => handleAddPosition(company.id)}
                         >
                           {expandedCompanies.includes(company.id) && (
                             <div className="p-4 space-y-3">
@@ -442,6 +619,8 @@ const ResumeEditor: React.FC = () => {
                                       company={company}
                                       expanded={expandedPositions.includes(position.id)}
                                       onToggle={() => togglePosition(position.id)}
+                                      onEdit={() => handleEditPosition(position, company.id)}
+                                      onDelete={() => handleDeletePosition(position.id, company.id)}
                                       bullets={data.bullets}
                                       tags={data.tags}
                                       onAddBullet={handleAddBullet}
@@ -454,6 +633,7 @@ const ResumeEditor: React.FC = () => {
                                       expandedProjects={expandedProjects}
                                       onToggleProject={toggleProject}
                                       onToggleProjectVisibility={toggleProjectVisibility}
+                                      onEditProject={handleEditProject}
                                       sensors={sensors}
                                     />
                                   ))}
@@ -486,36 +666,101 @@ const ResumeEditor: React.FC = () => {
                   <div className="border border-border rounded-lg p-4">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="font-semibold">Education</h3>
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" onClick={handleAddEducation}>
                         <Plus className="h-4 w-4 mr-2" />
                         Add Education
                       </Button>
                     </div>
-                    <p className="text-sm text-muted-foreground">No education entries yet. Click "Add Education" to get started.</p>
+                    {data.education.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">No education entries yet. Click "Add Education" to get started.</p>
+                    ) : (
+                      <div className="space-y-3">
+                        {data.education.map((edu) => (
+                          <div key={edu.id} className="border border-border rounded-lg p-3">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <h4 className="font-medium">{edu.degree}</h4>
+                                <p className="text-sm text-muted-foreground">{edu.institution}</p>
+                                <p className="text-sm text-muted-foreground">{edu.startDate} - {edu.endDate || 'Present'}</p>
+                                {edu.description && <p className="text-sm mt-1">{edu.description}</p>}
+                              </div>
+                              <div className="flex gap-1">
+                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleEditEducation(edu)}>
+                                  <Pencil className="h-3 w-3" />
+                                </Button>
+                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleDeleteEducation(edu)}>
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {/* Skills Section */}
                   <div className="border border-border rounded-lg p-4">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="font-semibold">Skills</h3>
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" onClick={handleAddSkill}>
                         <Plus className="h-4 w-4 mr-2" />
-                        Add Skills
+                        Add Skill
                       </Button>
                     </div>
-                    <p className="text-sm text-muted-foreground">No skills added yet. Click "Add Skills" to get started.</p>
+                    {data.skills.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">No skills added yet. Click "Add Skill" to get started.</p>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {data.skills.map((skill) => (
+                          <div key={skill.id} className="flex items-center gap-1 border border-border rounded-lg px-3 py-1">
+                            <span className="text-sm">{skill.name}</span>
+                            <Button variant="ghost" size="sm" className="h-5 w-5 p-0" onClick={() => handleEditSkill(skill)}>
+                              <Pencil className="h-3 w-3" />
+                            </Button>
+                            <Button variant="ghost" size="sm" className="h-5 w-5 p-0" onClick={() => handleDeleteSkill(skill)}>
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {/* Certifications Section */}
                   <div className="border border-border rounded-lg p-4">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="font-semibold">Certifications</h3>
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" onClick={handleAddCertification}>
                         <Plus className="h-4 w-4 mr-2" />
                         Add Certification
                       </Button>
                     </div>
-                    <p className="text-sm text-muted-foreground">No certifications added yet. Click "Add Certification" to get started.</p>
+                    {data.certifications.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">No certifications added yet. Click "Add Certification" to get started.</p>
+                    ) : (
+                      <div className="space-y-3">
+                        {data.certifications.map((cert) => (
+                          <div key={cert.id} className="border border-border rounded-lg p-3">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <h4 className="font-medium">{cert.name}</h4>
+                                <p className="text-sm text-muted-foreground">{cert.issuer}</p>
+                                <p className="text-sm text-muted-foreground">{cert.date}</p>
+                              </div>
+                              <div className="flex gap-1">
+                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleEditCertification(cert)}>
+                                  <Pencil className="h-3 w-3" />
+                                </Button>
+                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleDeleteCertification(cert)}>
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -556,6 +801,31 @@ const ResumeEditor: React.FC = () => {
             ] :
             editDialog.type === 'bullet' ? [
               { name: 'content', label: 'Bullet Content', value: editDialog.data.content, type: 'textarea' as const }
+            ] :
+            editDialog.type === 'position' ? [
+              { name: 'title', label: 'Job Title', value: editDialog.data.title },
+              { name: 'startDate', label: 'Start Date', value: editDialog.data.startDate },
+              { name: 'endDate', label: 'End Date (leave empty for Present)', value: editDialog.data.endDate || '' }
+            ] :
+            editDialog.type === 'project' ? [
+              { name: 'name', label: 'Project Name', value: editDialog.data.name },
+              { name: 'description', label: 'Description', value: editDialog.data.description || '', type: 'textarea' as const }
+            ] :
+            editDialog.type === 'education' ? [
+              { name: 'degree', label: 'Degree', value: editDialog.data.degree },
+              { name: 'institution', label: 'Institution', value: editDialog.data.institution },
+              { name: 'startDate', label: 'Start Date', value: editDialog.data.startDate },
+              { name: 'endDate', label: 'End Date (leave empty for Present)', value: editDialog.data.endDate || '' },
+              { name: 'description', label: 'Description', value: editDialog.data.description || '', type: 'textarea' as const }
+            ] :
+            editDialog.type === 'skill' ? [
+              { name: 'name', label: 'Skill Name', value: editDialog.data.name },
+              { name: 'category', label: 'Category (optional)', value: editDialog.data.category || '' }
+            ] :
+            editDialog.type === 'certification' ? [
+              { name: 'name', label: 'Certification Name', value: editDialog.data.name },
+              { name: 'issuer', label: 'Issuing Organization', value: editDialog.data.issuer },
+              { name: 'date', label: 'Date', value: editDialog.data.date }
             ] : []
           }
           onSave={handleSaveEdit}
