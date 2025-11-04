@@ -17,25 +17,25 @@ const SavedResumes: React.FC = () => {
   const [editDialog, setEditDialog] = useState<any>(null);
   const [loadWarningDialog, setLoadWarningDialog] = useState<{ resumeId: string; resumeName: string } | null>(null);
   
-  const resumes = data.resumeVersions.map(rv => ({
+  const resumes = (data.resumeVersions || []).map(rv => ({
     ...rv,
-    bullets: data.bullets.filter(b => rv.selectedBullets.includes(b.id)).length,
+    bullets: (data.bullets || []).filter(b => rv.selectedBullets.includes(b.id)).length,
     companies: rv.selectedCompanies.length,
     positions: 0,
-    summary: data.summaries.find(s => s.id === rv.summaryId)?.name || 'None',
+    summary: (data.summaries || []).find(s => s.id === rv.summaryId)?.name || 'None',
     created: new Date(rv.createdAt).toLocaleDateString(),
     modified: new Date(rv.updatedAt).toLocaleDateString(),
   }));
 
   const hasUnsavedChanges = () => {
     if (!data.currentEditing.resumeVersionId) return false;
-    const currentVersion = data.resumeVersions.find(v => v.id === data.currentEditing.resumeVersionId);
+    const currentVersion = (data.resumeVersions || []).find(v => v.id === data.currentEditing.resumeVersionId);
     if (!currentVersion) return false;
     
     const currentSelections = {
-      summaryId: data.summaries.find(s => s.isSelected)?.id,
-      selectedBullets: data.bullets.filter(b => b.isSelected).map(b => b.id).sort(),
-      selectedCompanies: data.companies.filter(c => c.isVisible !== false).map(c => c.id).sort(),
+      summaryId: (data.summaries || []).find(s => s.isSelected)?.id,
+      selectedBullets: (data.bullets || []).filter(b => b.isSelected).map(b => b.id).sort(),
+      selectedCompanies: (data.companies || []).filter(c => c.isVisible !== false).map(c => c.id).sort(),
     };
     
     return (
@@ -158,7 +158,7 @@ const SavedResumes: React.FC = () => {
         <div className="grid grid-cols-3 gap-4 mb-6">
           <div className="border border-border rounded-lg p-4">
             <p className="text-sm text-muted-foreground mb-1">Total Versions</p>
-            <p className="text-3xl font-bold">{data.resumeVersions.length}</p>
+            <p className="text-3xl font-bold">{(data.resumeVersions || []).length}</p>
           </div>
           <div className="border border-border rounded-lg p-4">
             <p className="text-sm text-muted-foreground mb-1">Default Resume</p>
@@ -269,7 +269,7 @@ const SavedResumes: React.FC = () => {
               });
               toast({ title: 'Resume updated' });
             } else {
-              const version = data.resumeVersions.find(v => v.id === editDialog.data.id);
+              const version = (data.resumeVersions || []).find(v => v.id === editDialog.data.id);
               if (version) {
                 saveResumeVersion({
                   name: values.name,
