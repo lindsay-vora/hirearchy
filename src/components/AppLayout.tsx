@@ -23,7 +23,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         <div className="flex h-16 items-center border-b border-sidebar-border px-6">
           <FileText className="h-6 w-6 mr-2" />
           <div>
-            <h1 className="text-lg font-bold text-sidebar-foreground">ResumeVersion</h1>
+            <h1 className="text-lg font-bold text-sidebar-foreground">Hirearchy</h1>
             <span className="text-xs text-muted-foreground">Beta</span>
           </div>
         </div>
