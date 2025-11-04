@@ -193,6 +193,10 @@ export const AppDataProvider: React.FC<{ children: ReactNode }> = ({ children })
         ...b,
         isSelected: version.selectedBullets.includes(b.id),
       })),
+      companies: prev.companies.map(c => ({
+        ...c,
+        isVisible: version.selectedCompanies.includes(c.id),
+      })),
       currentEditing: {
         resumeVersionId: version.id,
         resumeName: version.name,
