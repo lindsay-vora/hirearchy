@@ -22,9 +22,9 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
   ) => {
     if (action === 'overwrite' && data.currentEditing.resumeVersionId) {
       updateResumeVersion(data.currentEditing.resumeVersionId, {
-        summaryId: data.summaries.find(s => s.isSelected)?.id,
-        selectedBullets: data.bullets.filter(b => b.isSelected).map(b => b.id),
-        selectedCompanies: data.companies.filter(c => c.isVisible !== false).map(c => c.id),
+        summaryId: (data.summaries || []).find(s => s.isSelected)?.id,
+        selectedBullets: (data.bullets || []).filter(b => b.isSelected).map(b => b.id),
+        selectedCompanies: (data.companies || []).filter(c => c.isVisible !== false).map(c => c.id),
       });
       toast({ title: 'Resume version updated' });
     } else if (action === 'new' && details) {
@@ -32,17 +32,17 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
         name: details.name,
         description: details.description,
         tags: details.tags,
-        summaryId: data.summaries.find(s => s.isSelected)?.id,
-        selectedBullets: data.bullets.filter(b => b.isSelected).map(b => b.id),
-        selectedCompanies: data.companies.filter(c => c.isVisible !== false).map(c => c.id),
+        summaryId: (data.summaries || []).find(s => s.isSelected)?.id,
+        selectedBullets: (data.bullets || []).filter(b => b.isSelected).map(b => b.id),
+        selectedCompanies: (data.companies || []).filter(c => c.isVisible !== false).map(c => c.id),
       });
       toast({ title: 'New resume version created' });
     }
   };
   
-  const selectedSummary = data.summaries.find(s => s.isSelected);
-  const selectedBullets = data.bullets.filter(b => b.isSelected);
-  const visibleCompanies = data.companies.filter(c => (c as any).isVisible !== false);
+  const selectedSummary = (data.summaries || []).find(s => s.isSelected);
+  const selectedBullets = (data.bullets || []).filter(b => b.isSelected);
+  const visibleCompanies = (data.companies || []).filter(c => (c as any).isVisible !== false);
 
   const getBulletsForProject = (projectId: string) => {
     return selectedBullets.filter(b => b.projectId === projectId);
@@ -95,7 +95,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
               
               {visibleCompanies.map((company) => (
                 <div key={company.id} className="mb-4">
-                  {company.positions.map((position) => (
+                  {(company.positions || []).map((position) => (
                     <div key={position.id} className="mb-4">
                       <div className="flex justify-between items-baseline mb-1">
                         <div>
@@ -107,7 +107,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
                         </span>
                       </div>
                       
-                      {position.projects.map((project) => {
+                      {(position.projects || []).map((project) => {
                         const projectBullets = getBulletsForProject(project.id);
                         const projectVisible = (project as any).isVisible !== false;
                         
@@ -135,10 +135,10 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
             </div>
           )}
 
-          {data.education.length > 0 && (
+          {(data.education || []).length > 0 && (
             <div className="mb-6">
               <h2 className="text-lg font-bold mb-2">Education</h2>
-              {data.education.map((edu) => (
+              {(data.education || []).map((edu) => (
                 <div key={edu.id} className="mb-3">
                   <div className="flex justify-between items-baseline mb-1">
                     <h3 className="font-medium">{edu.degree}</h3>
@@ -155,11 +155,11 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
             </div>
           )}
 
-          {data.skills.length > 0 && (
+          {(data.skills || []).length > 0 && (
             <div className="mb-6">
               <h2 className="text-lg font-bold mb-2">Skills</h2>
               <div className="flex flex-wrap gap-2">
-                {data.skills.map(skill => (
+                {(data.skills || []).map(skill => (
                   <span key={skill.id} className="px-3 py-1 bg-gray-200 text-sm rounded">
                     {skill.name}
                   </span>
@@ -168,10 +168,10 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
             </div>
           )}
 
-          {data.certifications.length > 0 && (
+          {(data.certifications || []).length > 0 && (
             <div>
               <h2 className="text-lg font-bold mb-2">Certifications</h2>
-              {data.certifications.map((cert) => (
+              {(data.certifications || []).map((cert) => (
                 <div key={cert.id} className="mb-2">
                   <div className="flex justify-between items-baseline">
                     <h3 className="font-medium">{cert.name}</h3>

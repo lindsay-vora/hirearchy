@@ -60,6 +60,7 @@ export const DraggablePosition: React.FC<DraggablePositionProps> = ({
 
   const positionBullets = bullets.filter(b => b.positionId === position.id);
   const selectedCount = positionBullets.filter(b => b.isSelected).length;
+  const projects = position.projects || [];
 
   const handleDragEnd = (event: DragEndEvent) => {
     // Handle bullet reordering within projects
@@ -98,7 +99,7 @@ export const DraggablePosition: React.FC<DraggablePositionProps> = ({
             </Button>
           </div>
           <p className="text-sm text-muted-foreground ml-6">
-            {position.startDate} - {position.endDate || 'Present'} • {position.projects.length} projects
+            {position.startDate} - {position.endDate || 'Present'} • {projects.length} projects
           </p>
         </div>
       </div>
@@ -106,8 +107,8 @@ export const DraggablePosition: React.FC<DraggablePositionProps> = ({
       {expanded && (
         <div className="p-3 space-y-3">
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <SortableContext items={position.projects.map(p => p.id)} strategy={verticalListSortingStrategy}>
-              {position.projects.map((project) => {
+            <SortableContext items={projects.map(p => p.id)} strategy={verticalListSortingStrategy}>
+              {projects.map((project) => {
                 const projectBullets = bullets.filter(b => b.projectId === project.id);
                 const projectVisible = (project as any).isVisible !== false;
                 
