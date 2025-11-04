@@ -1,101 +1,97 @@
 export interface Tag {
   id: string;
   name: string;
-  color?: string;
+  color: string;
   createdAt: string;
+}
+
+export interface Project {
+  id: string;
+  name: string;
+  bulletCount: number;
+}
+
+export interface Position {
+  id: string;
+  title: string;
+  startDate: string;
+  endDate?: string;
+  projects: Project[];
+}
+
+export interface Company {
+  id: string;
+  name: string;
+  positions: Position[];
+  isExpanded?: boolean;
 }
 
 export interface Bullet {
   id: string;
-  name: string;
   content: string;
-  jobId?: string;
+  version: string;
   tags: string[];
-  rating?: 'strong' | 'weak' | 'needs-revision';
-  isFavorite: boolean;
-  createdAt: string;
-  updatedAt: string;
-  groupId?: string;
-}
-
-export interface BulletGroup {
-  id: string;
-  name: string;
-  bullets: string[];
-}
-
-export interface JobHistory {
-  id: string;
-  company: string;
-  title: string;
-  startDate: string;
-  endDate?: string;
-  subTitles: SubTitle[];
-}
-
-export interface SubTitle {
-  id: string;
-  title: string;
-  startDate: string;
-  endDate?: string;
-}
-
-export interface Resume {
-  id: string;
-  name: string;
-  summary?: string;
-  tags: string[];
-  jobs: string[];
-  bullets: string[];
-  education: Education[];
-  certifications: Certification[];
-  software: string[];
+  projectId: string;
+  positionId: string;
+  companyId: string;
+  isSelected?: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface Education {
+export interface Summary {
   id: string;
-  institution: string;
-  degree: string;
-  field?: string;
-  startDate: string;
-  endDate?: string;
+  name: string;
+  version: string;
+  content: string;
+  isSelected?: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FormatSettings {
+  fontFamily: string;
+  fontSize: number;
+  lineHeight: number;
+  margins: number;
+  sectionSpacing: number;
+  headerStyle: string;
+  bulletStyle: string;
+  colorScheme: string;
+}
+
+export interface SavedFormat {
+  id: string;
+  name: string;
+  description: string;
+  isDefault?: boolean;
+  settings: FormatSettings;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ResumeVersion {
+  id: string;
+  name: string;
   description?: string;
-}
-
-export interface Certification {
-  id: string;
-  name: string;
-  issuer: string;
-  date: string;
-  expiryDate?: string;
-  credentialId?: string;
-}
-
-export interface Application {
-  id: string;
-  company: string;
-  role: string;
-  link?: string;
-  dateApplied: string;
-  resumeVersionId: string;
-  status: 'submitted' | 'interviewing' | 'offer' | 'rejected' | 'withdrawn';
-  notes?: string;
-  recruiterName?: string;
-  referral?: string;
-  jobDescription?: string;
+  tags: string[];
+  summaryId?: string;
+  selectedBullets: string[];
+  selectedCompanies: string[];
+  formatId?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface AppData {
-  resumes: Resume[];
+  companies: Company[];
   bullets: Bullet[];
-  bulletGroups: BulletGroup[];
+  summaries: Summary[];
   tags: Tag[];
-  jobHistory: JobHistory[];
-  applications: Application[];
-  settings: {
-    autoSaveInterval: number;
-    lastBackup?: string;
+  formats: SavedFormat[];
+  resumeVersions: ResumeVersion[];
+  currentEditing: {
+    resumeVersionId?: string;
+    resumeName: string;
   };
 }

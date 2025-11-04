@@ -1,17 +1,16 @@
 import { AppData } from '@/types';
 
 const STORAGE_KEY = 'hirearchy_data';
-const AUTOSAVE_INTERVAL = 30000; // 30 seconds
 
 const defaultData: AppData = {
-  resumes: [],
+  companies: [],
   bullets: [],
-  bulletGroups: [],
+  summaries: [],
   tags: [],
-  jobHistory: [],
-  applications: [],
-  settings: {
-    autoSaveInterval: AUTOSAVE_INTERVAL,
+  formats: [],
+  resumeVersions: [],
+  currentEditing: {
+    resumeName: 'Untitled Resume',
   },
 };
 
@@ -30,7 +29,6 @@ export const loadData = (): AppData => {
 export const saveData = (data: AppData): void => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    localStorage.setItem(`${STORAGE_KEY}_backup`, JSON.stringify(data));
   } catch (error) {
     console.error('Failed to save data:', error);
   }
