@@ -270,9 +270,9 @@ const ResumeEditor: React.FC = () => {
       toast({ title: 'Position updated' });
     } else if (editDialog.type === 'project') {
       // Update project within position
-      const company = data.companies.find(c => c.id === editDialog.data.companyId);
+      const company = (data.companies || []).find(c => c.id === editDialog.data.companyId);
       if (company) {
-        const position = company.positions.find(p => p.id === editDialog.data.positionId);
+        const position = (company.positions || []).find(p => p.id === editDialog.data.positionId);
         if (position) {
           const updatedProjects = position.projects.map(proj =>
             proj.id === editDialog.data.id
@@ -450,8 +450,8 @@ const ResumeEditor: React.FC = () => {
     const { active, over } = event;
     
     if (over && active.id !== over.id) {
-      const activeIndex = data.bullets.findIndex(b => b.id === active.id);
-      const overIndex = data.bullets.findIndex(b => b.id === over.id);
+      const activeIndex = (data.bullets || []).findIndex(b => b.id === active.id);
+      const overIndex = (data.bullets || []).findIndex(b => b.id === over.id);
       
       if (activeIndex !== -1 && overIndex !== -1) {
         // This would need a reorder bullets function in context
@@ -524,7 +524,7 @@ const ResumeEditor: React.FC = () => {
                 </div>
 
                 <div className="space-y-4 max-w-3xl">
-                  {data.summaries.map((summary) => (
+                  {(data.summaries || []).map((summary) => (
                     <div key={summary.id} className={`border ${summary.isSelected ? 'border-2 border-primary' : 'border-border'} rounded-lg p-4 bg-card ${!summary.isSelected && 'opacity-70'}`}>
                       <div className="flex items-start gap-3">
                         <Checkbox 
@@ -579,8 +579,8 @@ const ResumeEditor: React.FC = () => {
 
                 <div className="space-y-3 max-w-4xl">
                   <DndContext sensors={sensors} collisionDetection={closestCenter}>
-                    <SortableContext items={data.companies.map(c => c.id)} strategy={verticalListSortingStrategy}>
-                      {data.companies.map((company) => (
+                    <SortableContext items={(data.companies || []).map(c => c.id)} strategy={verticalListSortingStrategy}>
+                      {(data.companies || []).map((company) => (
                         <DraggableCompany
                           key={company.id}
                           company={company}
@@ -594,8 +594,8 @@ const ResumeEditor: React.FC = () => {
                           {expandedCompanies.includes(company.id) && (
                             <div className="p-4 space-y-3">
                               <DndContext sensors={sensors} collisionDetection={closestCenter}>
-                                <SortableContext items={company.positions.map(p => p.id)} strategy={verticalListSortingStrategy}>
-                                  {company.positions.map((position) => (
+                                <SortableContext items={(company.positions || []).map(p => p.id)} strategy={verticalListSortingStrategy}>
+                                  {(company.positions || []).map((position) => (
                                     <DraggablePosition
                                       key={position.id}
                                       position={position}
@@ -603,9 +603,9 @@ const ResumeEditor: React.FC = () => {
                                       expanded={expandedPositions.includes(position.id)}
                                       onToggle={() => togglePosition(position.id)}
                                       onEdit={() => handleEditPosition(position, company.id)}
-                                      onDelete={() => handleDeletePosition(position.id, company.id)}
-                                      bullets={data.bullets}
-                                      tags={data.tags}
+                        onDelete={() => handleDeletePosition(position.id, company.id)}
+                        bullets={data.bullets || []}
+                        tags={data.tags || []}
                                       onAddBullet={handleAddBullet}
                                       onEditBullet={handleEditBullet}
                                       onDeleteBullet={handleDeleteBullet}
@@ -654,11 +654,11 @@ const ResumeEditor: React.FC = () => {
                         Add Education
                       </Button>
                     </div>
-                    {data.education.length === 0 ? (
+                    {(data.education || []).length === 0 ? (
                       <p className="text-sm text-muted-foreground">No education entries yet. Click "Add Education" to get started.</p>
                     ) : (
                       <div className="space-y-3">
-                        {data.education.map((edu) => (
+                        {(data.education || []).map((edu) => (
                           <div key={edu.id} className="border border-border rounded-lg p-3">
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
@@ -691,11 +691,11 @@ const ResumeEditor: React.FC = () => {
                         Add Skill
                       </Button>
                     </div>
-                    {data.skills.length === 0 ? (
+                    {(data.skills || []).length === 0 ? (
                       <p className="text-sm text-muted-foreground">No skills added yet. Click "Add Skill" to get started.</p>
                     ) : (
                       <div className="flex flex-wrap gap-2">
-                        {data.skills.map((skill) => (
+                        {(data.skills || []).map((skill) => (
                           <div key={skill.id} className="flex items-center gap-1 border border-border rounded-lg px-3 py-1">
                             <span className="text-sm">{skill.name}</span>
                             <Button variant="ghost" size="sm" className="h-5 w-5 p-0" onClick={() => handleEditSkill(skill)}>
@@ -719,11 +719,11 @@ const ResumeEditor: React.FC = () => {
                         Add Certification
                       </Button>
                     </div>
-                    {data.certifications.length === 0 ? (
+                    {(data.certifications || []).length === 0 ? (
                       <p className="text-sm text-muted-foreground">No certifications added yet. Click "Add Certification" to get started.</p>
                     ) : (
                       <div className="space-y-3">
-                        {data.certifications.map((cert) => (
+                        {(data.certifications || []).map((cert) => (
                           <div key={cert.id} className="border border-border rounded-lg p-3">
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
