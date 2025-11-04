@@ -60,28 +60,6 @@ export interface Summary {
   updatedAt: string;
 }
 
-export interface FormatSettings {
-  fontFamily: string;
-  fontSize: number;
-  lineHeight: number;
-  margins: number;
-  sectionSpacing: number;
-  headerStyle: string;
-  bulletStyle: string;
-  colorScheme: string;
-}
-
-export interface SavedFormat {
-  id: string;
-  name: string;
-  description: string;
-  isDefault?: boolean;
-  isFavorite?: boolean;
-  settings: FormatSettings;
-  createdAt: string;
-  updatedAt: string;
-}
-
 export interface ResumeVersion {
   id: string;
   name: string;
@@ -90,7 +68,6 @@ export interface ResumeVersion {
   summaryId?: string;
   selectedBullets: string[];
   selectedCompanies: string[];
-  formatId?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -100,7 +77,6 @@ export interface AppData {
   bullets: Bullet[];
   summaries: Summary[];
   tags: Tag[];
-  formats: SavedFormat[];
   resumeVersions: ResumeVersion[];
   currentEditing: {
     resumeVersionId?: string;

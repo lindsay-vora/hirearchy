@@ -84,27 +84,6 @@ const defaultData: AppData = {
     { id: 'tag-2', name: 'Backend', color: '#10b981', createdAt: new Date().toISOString() },
     { id: 'tag-3', name: 'Cloud', color: '#f97316', createdAt: new Date().toISOString() },
   ],
-  formats: [
-    {
-      id: 'format-1',
-      name: 'Classic',
-      description: 'Clean, traditional format',
-      isDefault: true,
-      isFavorite: false,
-      settings: {
-        fontFamily: 'georgia',
-        fontSize: 11,
-        lineHeight: 1.5,
-        margins: 0.5,
-        sectionSpacing: 12,
-        headerStyle: 'bold',
-        bulletStyle: 'disc',
-        colorScheme: 'default',
-      },
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-  ],
   resumeVersions: [],
   currentEditing: {
     resumeName: 'Software Engineering - FAANG',

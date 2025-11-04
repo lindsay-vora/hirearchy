@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { AppData, Company, Bullet, Summary, SavedFormat, ResumeVersion, Tag } from '@/types';
+import { AppData, Company, Bullet, Summary, ResumeVersion, Tag } from '@/types';
 import { loadData, saveData } from '@/lib/storage';
 
 interface AppDataContextType {
@@ -17,10 +17,6 @@ interface AppDataContextType {
   updateSummary: (id: string, summary: Partial<Summary>) => void;
   deleteSummary: (id: string) => void;
   selectSummary: (id: string) => void;
-  addFormat: (format: SavedFormat) => void;
-  updateFormat: (id: string, format: Partial<SavedFormat>) => void;
-  deleteFormat: (id: string) => void;
-  selectFormat: (id: string) => void;
   saveResumeVersion: (version: Omit<ResumeVersion, 'id' | 'createdAt' | 'updatedAt'>) => void;
   loadResumeVersion: (id: string) => void;
   deleteResumeVersion: (id: string) => void;
@@ -144,37 +140,6 @@ export const AppDataProvider: React.FC<{ children: ReactNode }> = ({ children })
     }));
   };
 
-  const addFormat = (format: SavedFormat) => {
-    setData(prev => ({
-      ...prev,
-      formats: [...prev.formats, format],
-    }));
-  };
-
-  const updateFormat = (id: string, updates: Partial<SavedFormat>) => {
-    setData(prev => ({
-      ...prev,
-      formats: prev.formats.map(f => f.id === id ? { ...f, ...updates } : f),
-    }));
-  };
-
-  const deleteFormat = (id: string) => {
-    setData(prev => ({
-      ...prev,
-      formats: prev.formats.filter(f => f.id !== id),
-    }));
-  };
-
-  const selectFormat = (id: string) => {
-    setData(prev => ({
-      ...prev,
-      formats: prev.formats.map(f => ({
-        ...f,
-        isDefault: f.id === id,
-      })),
-    }));
-  };
-
   const saveResumeVersion = (version: Omit<ResumeVersion, 'id' | 'createdAt' | 'updatedAt'>) => {
     const newVersion: ResumeVersion = {
       ...version,
@@ -264,10 +229,6 @@ export const AppDataProvider: React.FC<{ children: ReactNode }> = ({ children })
         updateSummary,
         deleteSummary,
         selectSummary,
-        addFormat,
-        updateFormat,
-        deleteFormat,
-        selectFormat,
         saveResumeVersion,
         loadResumeVersion,
         deleteResumeVersion,

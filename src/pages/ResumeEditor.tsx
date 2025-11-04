@@ -7,10 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AlignJustify, Briefcase, Palette, Plus, ChevronDown, ChevronRight, GripVertical, Pencil, Trash2, Tag as TagIcon, Settings, Copy, Eye, EyeOff, Star, GraduationCap } from 'lucide-react';
+import { AlignJustify, Briefcase, Plus, ChevronDown, ChevronRight, GripVertical, Pencil, Trash2, Tag as TagIcon, Copy, Eye, EyeOff, GraduationCap } from 'lucide-react';
 import ResumePreview from '@/components/ResumePreview';
 import { ResizablePanel } from '@/components/ResizablePanel';
 import { Badge } from '@/components/ui/badge';
@@ -99,7 +97,7 @@ const DraggableBullet: React.FC<DraggableBulletProps> = ({ bullet, onToggle, onE
 };
 
 const ResumeEditor: React.FC = () => {
-  const { data, addCompany, updateCompany, deleteCompany, toggleBulletSelection, addSummary, updateSummary, deleteSummary, selectSummary, addFormat, updateFormat, deleteFormat, selectFormat, saveResumeVersion, toggleCompanyVisibility, toggleProjectVisibility, addBullet, updateBullet, deleteBullet } = useAppData();
+  const { data, addCompany, updateCompany, deleteCompany, toggleBulletSelection, addSummary, updateSummary, deleteSummary, selectSummary, saveResumeVersion, toggleCompanyVisibility, toggleProjectVisibility, addBullet, updateBullet, deleteBullet } = useAppData();
   const { toast } = useToast();
   
   const [expandedCompanies, setExpandedCompanies] = useState<string[]>(['tech-corp']);
@@ -267,9 +265,6 @@ const ResumeEditor: React.FC = () => {
     } else if (editDialog.type === 'bullet') {
       updateBullet(editDialog.data.id, { content: values.content });
       toast({ title: 'Bullet updated' });
-    } else if (editDialog.type === 'format') {
-      updateFormat(editDialog.data.id, { name: values.name, description: values.description });
-      toast({ title: 'Format updated' });
     }
     
     setEditDialog(null);
@@ -293,7 +288,6 @@ const ResumeEditor: React.FC = () => {
     const selectedBulletIds = data.bullets.filter(b => b.isSelected).map(b => b.id);
     const selectedSummaryId = data.summaries.find(s => s.isSelected)?.id;
     const selectedCompanyIds = data.companies.filter(c => (c as any).isVisible !== false).map(c => c.id);
-    const selectedFormatId = data.formats.find(f => f.isDefault)?.id;
     
     saveResumeVersion({
       name: data.currentEditing.resumeName || 'Untitled Resume',
@@ -302,7 +296,6 @@ const ResumeEditor: React.FC = () => {
       summaryId: selectedSummaryId,
       selectedBullets: selectedBulletIds,
       selectedCompanies: selectedCompanyIds,
-      formatId: selectedFormatId,
     });
     
     toast({ title: 'Resume version saved', description: 'Your resume has been saved successfully.' });
@@ -310,38 +303,6 @@ const ResumeEditor: React.FC = () => {
 
   const handleExport = () => {
     toast({ title: 'Export feature', description: 'Export functionality coming soon!' });
-  };
-
-  const handleToggleFormatFavorite = (formatId: string) => {
-    const format = data.formats.find(f => f.id === formatId);
-    if (format) {
-      updateFormat(formatId, { isFavorite: !format.isFavorite });
-    }
-  };
-
-  const handleCopyFormat = (format: any) => {
-    const newFormat = {
-      ...format,
-      id: `format-${Date.now()}`,
-      name: `${format.name} (Copy)`,
-      isDefault: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    addFormat(newFormat);
-    toast({ title: 'Format copied' });
-  };
-
-  const handleDeleteFormat = (format: any) => {
-    setConfirmDialog({
-      open: true,
-      title: 'Delete Format',
-      description: `Are you sure you want to delete "${format.name}"?`,
-      onConfirm: () => {
-        deleteFormat(format.id);
-        toast({ title: 'Format deleted' });
-      },
-    });
   };
 
   return (
@@ -382,10 +343,6 @@ const ResumeEditor: React.FC = () => {
               <TabsTrigger value="other" className="gap-2">
                 <GraduationCap className="h-4 w-4" />
                 Other
-              </TabsTrigger>
-              <TabsTrigger value="format" className="gap-2">
-                <Palette className="h-4 w-4" />
-                Format
               </TabsTrigger>
             </TabsList>
           </div>
@@ -563,94 +520,6 @@ const ResumeEditor: React.FC = () => {
                 </div>
               </div>
             </TabsContent>
-
-            {/* Format Tab */}
-            <TabsContent value="format" className="m-0 h-full">
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h2 className="text-xl font-bold">Format Settings</h2>
-                    <p className="text-sm text-muted-foreground">
-                      Customize your resume appearance
-                    </p>
-                  </div>
-                  <Button>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Save Format
-                  </Button>
-                </div>
-
-                <div className="grid grid-cols-2 gap-6 max-w-6xl">
-                  {/* Settings */}
-                  <div className="space-y-6">
-                    <div className="border border-border rounded-lg p-4">
-                      <h3 className="font-semibold mb-4">Typography</h3>
-                      <div className="space-y-4">
-                        <div>
-                          <Label className="text-sm mb-2 block">Font Family</Label>
-                          <Select defaultValue="georgia">
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="georgia">Georgia</SelectItem>
-                              <SelectItem value="times">Times New Roman</SelectItem>
-                              <SelectItem value="calibri">Calibri</SelectItem>
-                              <SelectItem value="arial">Arial</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div>
-                          <div className="flex items-center justify-between mb-2">
-                            <Label className="text-sm">Font Size</Label>
-                            <span className="text-sm text-muted-foreground">11pt</span>
-                          </div>
-                          <Slider defaultValue={[11]} min={8} max={16} step={1} />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Saved Formats */}
-                  <div className="space-y-4">
-                    <h3 className="font-semibold">Saved Formats</h3>
-                    {data.formats.map((format) => (
-                      <div key={format.id} className={`border ${format.isDefault ? 'border-2 border-primary' : 'border-border'} rounded-lg p-4`}>
-                        <div className="flex items-start justify-between mb-2">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="font-semibold">{format.name}</span>
-                              {format.isDefault && <Badge variant="secondary" className="text-xs">Active</Badge>}
-                            </div>
-                            <p className="text-sm text-muted-foreground">{format.description}</p>
-                          </div>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-8 w-8"
-                            onClick={() => handleToggleFormatFavorite(format.id)}
-                          >
-                            <Star className={`h-4 w-4 ${format.isFavorite ? 'fill-current text-yellow-500' : ''}`} />
-                          </Button>
-                        </div>
-                        <div className="flex gap-2 mt-3">
-                          <Button variant="ghost" size="sm" onClick={() => selectFormat(format.id)}>
-                            Apply
-                          </Button>
-                          <Button variant="ghost" size="sm" onClick={() => handleCopyFormat(format)}>
-                            <Copy className="h-3 w-3 mr-1" />
-                            Copy
-                          </Button>
-                          <Button variant="ghost" size="sm" className="text-destructive" onClick={() => handleDeleteFormat(format)}>
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
           </div>
         </Tabs>
       </div>
@@ -659,7 +528,6 @@ const ResumeEditor: React.FC = () => {
       {showPreview && (
         <ResizablePanel defaultWidth={500} minWidth={300} maxWidth={800}>
           <ResumePreview
-            onFormatClick={() => {}}
             onSaveVersion={handleSaveVersion}
             onExport={handleExport}
           />
@@ -688,10 +556,6 @@ const ResumeEditor: React.FC = () => {
             ] :
             editDialog.type === 'bullet' ? [
               { name: 'content', label: 'Bullet Content', value: editDialog.data.content, type: 'textarea' as const }
-            ] :
-            editDialog.type === 'format' ? [
-              { name: 'name', label: 'Format Name', value: editDialog.data.name },
-              { name: 'description', label: 'Description', value: editDialog.data.description }
             ] : []
           }
           onSave={handleSaveEdit}

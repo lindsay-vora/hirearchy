@@ -1,16 +1,14 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Settings, Save, Download } from 'lucide-react';
+import { Save, Download } from 'lucide-react';
 import { useAppData } from '@/contexts/AppDataContext';
 
 interface ResumePreviewProps {
-  onFormatClick: () => void;
   onSaveVersion: () => void;
   onExport: () => void;
 }
 
 const ResumePreview: React.FC<ResumePreviewProps> = ({ 
-  onFormatClick, 
   onSaveVersion, 
   onExport 
 }) => {
@@ -18,7 +16,6 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
   
   const selectedSummary = data.summaries.find(s => s.isSelected);
   const selectedBullets = data.bullets.filter(b => b.isSelected);
-  const selectedFormat = data.formats.find(f => f.isDefault) || data.formats[0];
   const visibleCompanies = data.companies.filter(c => (c as any).isVisible !== false);
 
   const getBulletsForProject = (projectId: string) => {
@@ -31,10 +28,6 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
         <h2 className="text-xl font-bold mb-1">Resume Preview</h2>
         <p className="text-sm text-muted-foreground mb-3">Live preview of your resume</p>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={onFormatClick}>
-            <Settings className="h-4 w-4 mr-2" />
-            Format
-          </Button>
           <Button variant="outline" size="sm" onClick={onSaveVersion}>
             <Save className="h-4 w-4 mr-2" />
             Save Version
@@ -49,9 +42,9 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
       <div 
         className="flex-1 overflow-auto p-8 bg-white text-black"
         style={{
-          fontFamily: selectedFormat?.settings.fontFamily || 'georgia',
-          fontSize: `${selectedFormat?.settings.fontSize || 11}pt`,
-          lineHeight: selectedFormat?.settings.lineHeight || 1.5,
+          fontFamily: 'Georgia, serif',
+          fontSize: '11pt',
+          lineHeight: 1.5,
         }}
       >
         <div className="max-w-[600px] mx-auto">
