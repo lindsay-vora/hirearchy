@@ -16,11 +16,17 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
   const { toast } = useToast();
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
 
+  if (!data) {
+    return <div className="border-l border-border bg-background flex items-center justify-center h-full">
+      <p className="text-muted-foreground">Loading...</p>
+    </div>;
+  }
+
   const handleSaveVersion = (
     action: 'overwrite' | 'new', 
     details?: { name: string; description: string; tags: string[] }
   ) => {
-    if (action === 'overwrite' && data.currentEditing.resumeVersionId) {
+    if (action === 'overwrite' && data.currentEditing?.resumeVersionId) {
       updateResumeVersion(data.currentEditing.resumeVersionId, {
         summaryId: (data.summaries || []).find(s => s.isSelected)?.id,
         selectedBullets: (data.bullets || []).filter(b => b.isSelected).map(b => b.id),
@@ -192,8 +198,8 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
       <SaveVersionDialog
         open={saveDialogOpen}
         onOpenChange={setSaveDialogOpen}
-        currentVersionId={data.currentEditing.resumeVersionId}
-        currentVersionName={data.currentEditing.resumeName}
+        currentVersionId={data.currentEditing?.resumeVersionId}
+        currentVersionName={data.currentEditing?.resumeName || ''}
         onSave={handleSaveVersion}
       />
     </div>
