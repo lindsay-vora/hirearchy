@@ -32,6 +32,9 @@ const defaultData: AppData = {
       id: 'bullet-1',
       content: 'Led development of microservices architecture serving 10M+ users',
       version: 'v1',
+      versions: [
+        { version: 'v1', content: 'Led development of microservices architecture serving 10M+ users', createdAt: new Date().toISOString() }
+      ],
       tags: ['Leadership', 'Backend', 'Cloud'],
       projectId: 'microservices',
       positionId: 'senior-swe',
@@ -43,7 +46,10 @@ const defaultData: AppData = {
     {
       id: 'bullet-2',
       content: 'Architected and deployed scalable microservices infrastructure supporting 10M+ daily active users',
-      version: 'v2',
+      version: 'v1',
+      versions: [
+        { version: 'v1', content: 'Architected and deployed scalable microservices infrastructure supporting 10M+ daily active users', createdAt: new Date().toISOString() }
+      ],
       tags: ['Leadership', 'Cloud'],
       projectId: 'microservices',
       positionId: 'senior-swe',

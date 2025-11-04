@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AlignJustify, Briefcase, Palette, Plus, ChevronDown, ChevronRight, GripVertical, Pencil, Trash2, Tag as TagIcon, Settings, Copy, Eye, EyeOff, Star } from 'lucide-react';
+import { AlignJustify, Briefcase, Palette, Plus, ChevronDown, ChevronRight, GripVertical, Pencil, Trash2, Tag as TagIcon, Settings, Copy, Eye, EyeOff, Star, GraduationCap } from 'lucide-react';
 import ResumePreview from '@/components/ResumePreview';
 import { ResizablePanel } from '@/components/ResizablePanel';
 import { Badge } from '@/components/ui/badge';
@@ -18,6 +18,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { AddCompanyDialog } from '@/components/dialogs/AddCompanyDialog';
 import { EditDialog } from '@/components/dialogs/EditDialog';
 import { ConfirmDialog } from '@/components/dialogs/ConfirmDialog';
+import { DraggableCompany } from '@/components/DraggableCompany';
+import { DraggablePosition } from '@/components/DraggablePosition';
 import { useAppData } from '@/contexts/AppDataContext';
 import { Company, Position, Project } from '@/types';
 import { useToast } from '@/hooks/use-toast';
@@ -27,10 +29,11 @@ interface DraggableBulletProps {
   onToggle: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  onVersionChange: (version: string) => void;
   tags: any[];
 }
 
-const DraggableBullet: React.FC<DraggableBulletProps> = ({ bullet, onToggle, onEdit, onDelete, tags }) => {
+const DraggableBullet: React.FC<DraggableBulletProps> = ({ bullet, onToggle, onEdit, onDelete, onVersionChange, tags }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: bullet.id });
   
   const style = {
@@ -39,12 +42,15 @@ const DraggableBullet: React.FC<DraggableBulletProps> = ({ bullet, onToggle, onE
     opacity: isDragging ? 0.5 : bullet.isSelected ? 1 : 0.6,
   };
 
+  const currentVersion = bullet.selectedVersion || bullet.version;
+  const versionData = bullet.versions?.find((v: any) => v.version === currentVersion) || { content: bullet.content };
+
   return (
     <div ref={setNodeRef} style={style} className={`border ${bullet.isSelected ? 'border-2 border-primary' : 'border-border'} rounded-lg p-3 bg-card`}>
       <div className="flex items-start gap-2">
         <Checkbox checked={bullet.isSelected} onCheckedChange={onToggle} className="mt-0.5" />
-        <div className="flex-1 min-w-0" onClick={onEdit}>
-          <p className="text-sm mb-2 cursor-pointer hover:text-primary">{bullet.content}</p>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm mb-2">{versionData.content}</p>
           <div className="flex flex-wrap items-center gap-1 mb-2">
             {bullet.tags.map((tagName: string) => {
               const tag = tags.find(t => t.name === tagName);
@@ -56,10 +62,31 @@ const DraggableBullet: React.FC<DraggableBulletProps> = ({ bullet, onToggle, onE
               );
             })}
           </div>
-          <span className="text-xs text-muted-foreground">{bullet.version}</span>
+          <div className="flex items-center gap-2">
+            {bullet.versions && bullet.versions.length > 1 && (
+              <Select value={currentVersion} onValueChange={onVersionChange}>
+                <SelectTrigger className="h-6 text-xs w-20">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {bullet.versions.map((v: any) => (
+                    <SelectItem key={v.version} value={v.version} className="text-xs">
+                      {v.version}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+            {(!bullet.versions || bullet.versions.length <= 1) && (
+              <span className="text-xs text-muted-foreground">{bullet.version}</span>
+            )}
+          </div>
         </div>
         <div className="flex gap-1">
-          <Button variant="ghost" size="sm" className="h-6 text-xs" onClick={onDelete}>
+          <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={onEdit}>
+            <Pencil className="h-3 w-3" />
+          </Button>
+          <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={onDelete}>
             <Trash2 className="h-3 w-3" />
           </Button>
           <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-1">
@@ -213,6 +240,9 @@ const ResumeEditor: React.FC = () => {
       id: `bullet-${Date.now()}`,
       content: 'Enter your achievement here...',
       version: 'v1',
+      versions: [
+        { version: 'v1', content: 'Enter your achievement here...', createdAt: new Date().toISOString() }
+      ],
       tags: [],
       projectId,
       positionId,
@@ -334,10 +364,6 @@ const ResumeEditor: React.FC = () => {
               {showPreview ? <EyeOff className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
               {showPreview ? 'Hide' : 'Show'} Preview
             </Button>
-            <Button variant="ghost" size="sm">
-              <Settings className="h-4 w-4 mr-2" />
-              Feedback
-            </Button>
           </div>
         </div>
 
@@ -352,6 +378,10 @@ const ResumeEditor: React.FC = () => {
               <TabsTrigger value="experience" className="gap-2">
                 <Briefcase className="h-4 w-4" />
                 Experience
+              </TabsTrigger>
+              <TabsTrigger value="other" className="gap-2">
+                <GraduationCap className="h-4 w-4" />
+                Other
               </TabsTrigger>
               <TabsTrigger value="format" className="gap-2">
                 <Palette className="h-4 w-4" />
@@ -432,164 +462,104 @@ const ResumeEditor: React.FC = () => {
                 </div>
 
                 <div className="space-y-3 max-w-4xl">
-                  {data.companies.map((company) => (
-                    <div key={company.id} className="border border-border rounded-lg">
-                      <div className="flex items-center gap-2 p-3 bg-muted/30 hover:bg-muted/50 transition-colors">
-                        <GripVertical className="h-5 w-5 text-muted-foreground cursor-grab" />
-                        <Checkbox 
-                          checked={(company as any).isVisible !== false}
-                          onCheckedChange={() => toggleCompanyVisibility(company.id)}
-                        />
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="p-0 h-auto hover:bg-transparent"
-                          onClick={() => toggleCompany(company.id)}
+                  <DndContext sensors={sensors} collisionDetection={closestCenter}>
+                    <SortableContext items={data.companies.map(c => c.id)} strategy={verticalListSortingStrategy}>
+                      {data.companies.map((company) => (
+                        <DraggableCompany
+                          key={company.id}
+                          company={company}
+                          expanded={expandedCompanies.includes(company.id)}
+                          onToggle={() => toggleCompany(company.id)}
+                          onEdit={() => handleEditCompany(company)}
+                          onDelete={() => handleDeleteCompany(company)}
+                          onVisibilityToggle={() => toggleCompanyVisibility(company.id)}
                         >
-                          {expandedCompanies.includes(company.id) ? (
-                            <ChevronDown className="h-5 w-5" />
-                          ) : (
-                            <ChevronRight className="h-5 w-5" />
+                          {expandedCompanies.includes(company.id) && (
+                            <div className="p-4 space-y-3">
+                              <DndContext sensors={sensors} collisionDetection={closestCenter}>
+                                <SortableContext items={company.positions.map(p => p.id)} strategy={verticalListSortingStrategy}>
+                                  {company.positions.map((position) => (
+                                    <DraggablePosition
+                                      key={position.id}
+                                      position={position}
+                                      company={company}
+                                      expanded={expandedPositions.includes(position.id)}
+                                      onToggle={() => togglePosition(position.id)}
+                                      bullets={data.bullets}
+                                      tags={data.tags}
+                                      onAddBullet={handleAddBullet}
+                                      onEditBullet={handleEditBullet}
+                                      onDeleteBullet={handleDeleteBullet}
+                                      onToggleBullet={toggleBulletSelection}
+                                      onBulletVersionChange={(bulletId, version) => {
+                                        updateBullet(bulletId, { selectedVersion: version });
+                                      }}
+                                      expandedProjects={expandedProjects}
+                                      onToggleProject={toggleProject}
+                                      onToggleProjectVisibility={toggleProjectVisibility}
+                                      sensors={sensors}
+                                    />
+                                  ))}
+                                </SortableContext>
+                              </DndContext>
+                            </div>
                           )}
-                        </Button>
-                        <Briefcase className="h-5 w-5" />
-                        <span className="font-semibold flex-1">{company.name}</span>
-                        <span className="text-sm text-muted-foreground mr-2">{company.positions.length} positions</span>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditCompany(company)}>
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => handleDeleteCompany(company)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
+                        </DraggableCompany>
+                      ))}
+                    </SortableContext>
+                  </DndContext>
+                </div>
+              </div>
+            </TabsContent>
 
-                      {expandedCompanies.includes(company.id) && (
-                        <div className="p-4 space-y-3">
-                          {company.positions.map((position) => {
-                            const positionBullets = data.bullets.filter(b => b.positionId === position.id);
-                            const selectedCount = positionBullets.filter(b => b.isSelected).length;
-                            
-                            return (
-                              <div key={position.id} className="border border-border rounded-lg">
-                                <div className="flex items-center gap-2 p-3 bg-muted/20 hover:bg-muted/30 transition-colors">
-                                  <GripVertical className="h-4 w-4 text-muted-foreground cursor-grab" />
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="p-0 h-auto hover:bg-transparent"
-                                    onClick={() => togglePosition(position.id)}
-                                  >
-                                    {expandedPositions.includes(position.id) ? (
-                                      <ChevronDown className="h-4 w-4" />
-                                    ) : (
-                                      <ChevronRight className="h-4 w-4" />
-                                    )}
-                                  </Button>
-                                  <span className="font-medium flex-1">{position.title}</span>
-                                  <span className="text-sm text-muted-foreground mr-2">{selectedCount} / {positionBullets.length}</span>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                                    <Plus className="h-4 w-4" />
-                                  </Button>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                                    <Pencil className="h-4 w-4" />
-                                  </Button>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                                <p className="px-12 py-2 text-sm text-muted-foreground border-b border-border">
-                                  {position.startDate} - {position.endDate || 'Present'} • {position.projects.length} projects
-                                </p>
+            {/* Other Tab */}
+            <TabsContent value="other" className="m-0 h-full">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-xl font-bold">Education & Skills</h2>
+                    <p className="text-sm text-muted-foreground">
+                      Add additional resume details
+                    </p>
+                  </div>
+                </div>
 
-                                {expandedPositions.includes(position.id) && (
-                                  <div className="p-3 space-y-3">
-                                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                                      {position.projects.map((project) => {
-                                        const projectBullets = data.bullets.filter(b => b.projectId === project.id);
-                                        const projectVisible = (project as any).isVisible !== false;
-                                        
-                                        return (
-                                          <div key={project.id} className="border border-border rounded-lg">
-                                            <div className="flex items-center gap-2 p-3 bg-muted/10">
-                                              <GripVertical className="h-4 w-4 text-muted-foreground cursor-grab" />
-                                              <Checkbox
-                                                checked={projectVisible}
-                                                onCheckedChange={() => toggleProjectVisibility(company.id, position.id, project.id)}
-                                              />
-                                              <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                className="p-0 h-auto hover:bg-transparent"
-                                                onClick={() => toggleProject(project.id)}
-                                              >
-                                                {expandedProjects.includes(project.id) ? (
-                                                  <ChevronDown className="h-4 w-4" />
-                                                ) : (
-                                                  <ChevronRight className="h-4 w-4" />
-                                                )}
-                                              </Button>
-                                              <span className="flex-1 font-medium text-sm">{project.name}</span>
-                                              <span className="text-xs text-muted-foreground mr-2">{projectBullets.filter(b => b.isSelected).length}/{projectBullets.length}</span>
-                                              <Button variant="ghost" size="icon" className="h-7 w-7">
-                                                <Pencil className="h-3 w-3" />
-                                              </Button>
-                                              <Button variant="ghost" size="icon" className="h-7 w-7">
-                                                <Trash2 className="h-3 w-3" />
-                                              </Button>
-                                            </div>
-                                            {project.description && (
-                                              <p className="px-10 py-2 text-xs text-muted-foreground border-b border-border">
-                                                {project.description}
-                                              </p>
-                                            )}
-
-                                            {expandedProjects.includes(project.id) && (
-                                              <div className="p-3 space-y-2">
-                                                <div className="flex items-center justify-between mb-2">
-                                                  <span className="font-medium text-sm">Bullet Points</span>
-                                                  <Button 
-                                                    variant="ghost" 
-                                                    size="sm" 
-                                                    className="h-7 text-xs"
-                                                    onClick={() => handleAddBullet(project.id, position.id, company.id)}
-                                                  >
-                                                    <Plus className="h-3 w-3 mr-1" />
-                                                    Add Bullet
-                                                  </Button>
-                                                </div>
-
-                                                <SortableContext items={projectBullets.map(b => b.id)} strategy={verticalListSortingStrategy}>
-                                                  {projectBullets.map((bullet) => (
-                                                    <DraggableBullet
-                                                      key={bullet.id}
-                                                      bullet={bullet}
-                                                      onToggle={() => toggleBulletSelection(bullet.id)}
-                                                      onEdit={() => handleEditBullet(bullet)}
-                                                      onDelete={() => handleDeleteBullet(bullet)}
-                                                      tags={data.tags}
-                                                    />
-                                                  ))}
-                                                </SortableContext>
-                                              </div>
-                                            )}
-                                          </div>
-                                        );
-                                      })}
-                                    </DndContext>
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
+                <div className="space-y-6 max-w-3xl">
+                  {/* Education Section */}
+                  <div className="border border-border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-semibold">Education</h3>
+                      <Button variant="outline" size="sm">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Education
+                      </Button>
                     </div>
-                  ))}
+                    <p className="text-sm text-muted-foreground">No education entries yet. Click "Add Education" to get started.</p>
+                  </div>
+
+                  {/* Skills Section */}
+                  <div className="border border-border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-semibold">Skills</h3>
+                      <Button variant="outline" size="sm">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Skills
+                      </Button>
+                    </div>
+                    <p className="text-sm text-muted-foreground">No skills added yet. Click "Add Skills" to get started.</p>
+                  </div>
+
+                  {/* Certifications Section */}
+                  <div className="border border-border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-semibold">Certifications</h3>
+                      <Button variant="outline" size="sm">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Certification
+                      </Button>
+                    </div>
+                    <p className="text-sm text-muted-foreground">No certifications added yet. Click "Add Certification" to get started.</p>
+                  </div>
                 </div>
               </div>
             </TabsContent>

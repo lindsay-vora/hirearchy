@@ -24,8 +24,12 @@ export const ResizablePanel: React.FC<ResizablePanelProps> = ({
     const handleMouseMove = (e: MouseEvent) => {
       if (!isResizing || !panelRef.current) return;
 
-      const containerWidth = panelRef.current.parentElement?.offsetWidth || 0;
-      const newWidth = containerWidth - e.clientX;
+      const panel = panelRef.current;
+      const container = panel.parentElement;
+      if (!container) return;
+
+      const containerRect = container.getBoundingClientRect();
+      const newWidth = containerRect.right - e.clientX;
       const clampedWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
       setWidth(clampedWidth);
     };

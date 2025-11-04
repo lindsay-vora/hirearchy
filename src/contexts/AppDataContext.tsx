@@ -77,7 +77,23 @@ export const AppDataProvider: React.FC<{ children: ReactNode }> = ({ children })
   const updateBullet = (id: string, updates: Partial<Bullet>) => {
     setData(prev => ({
       ...prev,
-      bullets: prev.bullets.map(b => b.id === id ? { ...b, ...updates } : b),
+      bullets: prev.bullets.map(b => {
+        if (b.id === id) {
+          const updated = { ...b, ...updates };
+          // If content is being updated and versions exist, create new version
+          if (updates.content && b.content !== updates.content && b.versions) {
+            const newVersion = `v${b.versions.length + 1}`;
+            updated.versions = [
+              ...b.versions,
+              { version: newVersion, content: updates.content, createdAt: new Date().toISOString() }
+            ];
+            updated.version = newVersion;
+            updated.selectedVersion = newVersion;
+          }
+          return updated;
+        }
+        return b;
+      }),
     }));
   };
 

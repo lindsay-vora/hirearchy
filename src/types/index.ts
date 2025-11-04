@@ -29,10 +29,18 @@ export interface Company {
   isVisible?: boolean;
 }
 
+export interface BulletVersion {
+  version: string;
+  content: string;
+  createdAt: string;
+}
+
 export interface Bullet {
   id: string;
   content: string;
   version: string;
+  versions: BulletVersion[];
+  selectedVersion?: string;
   tags: string[];
   projectId: string;
   positionId: string;

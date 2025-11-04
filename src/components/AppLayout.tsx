@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Home, Tag, Layers, FileText, Settings, MessageSquare } from 'lucide-react';
+import { Home, Tag, Layers, Building2, Settings, MessageSquare } from 'lucide-react';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -14,6 +14,8 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     { path: '/', label: 'Resume Editor', icon: Home },
     { path: '/tags', label: 'Tag Manager', icon: Tag },
     { path: '/saved', label: 'Saved Resumes', icon: Layers },
+    { path: '/settings', label: 'Settings', icon: Settings },
+    { path: '/feedback', label: 'Feedback', icon: MessageSquare },
   ];
 
   return (
@@ -21,7 +23,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       {/* Sidebar */}
       <aside className="w-64 border-r border-border bg-sidebar flex flex-col">
         <div className="flex h-16 items-center border-b border-sidebar-border px-6">
-          <FileText className="h-6 w-6 mr-2" />
+          <Building2 className="h-6 w-6 mr-2" />
           <div>
             <h1 className="text-lg font-bold text-sidebar-foreground">Hirearchy</h1>
             <span className="text-xs text-muted-foreground">Beta</span>
