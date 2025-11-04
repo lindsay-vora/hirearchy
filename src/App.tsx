@@ -8,22 +8,25 @@ import ResumeEditor from "./pages/ResumeEditor";
 import TagManager from "./pages/TagManager";
 import SavedResumes from "./pages/SavedResumes";
 import NotFound from "./pages/NotFound";
+import { AppDataProvider } from "./contexts/AppDataContext";
 
 const App = () => (
   <TooltipProvider>
     <Toaster />
     <Sonner />
-    <BrowserRouter>
-      <AppLayout>
-        <Routes>
-          <Route path="/" element={<ResumeEditor />} />
-          <Route path="/resumes" element={<ResumeEditor />} />
-          <Route path="/tags" element={<TagManager />} />
-          <Route path="/saved" element={<SavedResumes />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </AppLayout>
-    </BrowserRouter>
+    <AppDataProvider>
+      <BrowserRouter>
+        <AppLayout>
+          <Routes>
+            <Route path="/" element={<ResumeEditor />} />
+            <Route path="/resumes" element={<ResumeEditor />} />
+            <Route path="/tags" element={<TagManager />} />
+            <Route path="/saved" element={<SavedResumes />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AppLayout>
+      </BrowserRouter>
+    </AppDataProvider>
   </TooltipProvider>
 );
 

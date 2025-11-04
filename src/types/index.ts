@@ -8,7 +8,9 @@ export interface Tag {
 export interface Project {
   id: string;
   name: string;
+  description?: string;
   bulletCount: number;
+  isVisible?: boolean;
 }
 
 export interface Position {
@@ -24,6 +26,7 @@ export interface Company {
   name: string;
   positions: Position[];
   isExpanded?: boolean;
+  isVisible?: boolean;
 }
 
 export interface Bullet {
@@ -65,6 +68,7 @@ export interface SavedFormat {
   name: string;
   description: string;
   isDefault?: boolean;
+  isFavorite?: boolean;
   settings: FormatSettings;
   createdAt: string;
   updatedAt: string;

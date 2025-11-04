@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Settings, Save, Download } from 'lucide-react';
+import { useAppData } from '@/contexts/AppDataContext';
 
 interface ResumePreviewProps {
   onFormatClick: () => void;
@@ -13,8 +14,19 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
   onSaveVersion, 
   onExport 
 }) => {
+  const { data } = useAppData();
+  
+  const selectedSummary = data.summaries.find(s => s.isSelected);
+  const selectedBullets = data.bullets.filter(b => b.isSelected);
+  const selectedFormat = data.formats.find(f => f.isDefault) || data.formats[0];
+  const visibleCompanies = data.companies.filter(c => (c as any).isVisible !== false);
+
+  const getBulletsForProject = (projectId: string) => {
+    return selectedBullets.filter(b => b.projectId === projectId);
+  };
+
   return (
-    <div className="w-[500px] border-l border-border bg-background flex flex-col">
+    <div className="border-l border-border bg-background flex flex-col h-full">
       <div className="border-b border-border p-4">
         <h2 className="text-xl font-bold mb-1">Resume Preview</h2>
         <p className="text-sm text-muted-foreground mb-3">Live preview of your resume</p>
@@ -34,8 +46,14 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto p-8 bg-white">
-        {/* Resume Preview Content */}
+      <div 
+        className="flex-1 overflow-auto p-8 bg-white text-black"
+        style={{
+          fontFamily: selectedFormat?.settings.fontFamily || 'georgia',
+          fontSize: `${selectedFormat?.settings.fontSize || 11}pt`,
+          lineHeight: selectedFormat?.settings.lineHeight || 1.5,
+        }}
+      >
         <div className="max-w-[600px] mx-auto">
           <div className="mb-4">
             <h1 className="text-2xl font-bold">John Doe</h1>
@@ -43,65 +61,58 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
             <p className="text-sm">San Francisco, CA</p>
           </div>
 
-          <hr className="border-t-2 border-foreground my-4" />
+          <hr className="border-t-2 border-black my-4" />
 
-          <div className="mb-6">
-            <h2 className="text-lg font-bold mb-2">Summary</h2>
-            <p className="text-sm">
-              Experienced software engineer with 5+ years building scalable web applications
-              and leading technical teams. Passionate about clean code, system design, and
-              mentoring junior developers.
-            </p>
-          </div>
-
-          <div className="mb-6">
-            <h2 className="text-lg font-bold mb-2">Work Experience</h2>
-            
-            <div className="mb-4">
-              <div className="flex justify-between items-baseline mb-1">
-                <h3 className="font-bold">Senior Software Engineer</h3>
-                <span className="text-sm">Jan 2022 - Present</span>
-              </div>
-              <p className="text-sm font-medium mb-2">Tech Corp</p>
-              <ul className="list-disc pl-5 space-y-1">
-                <li className="text-sm">
-                  Led development of microservices architecture serving 10M+ users
-                </li>
-                <li className="text-sm">
-                  Reduced deployment time by 60% through CI/CD pipeline optimization
-                </li>
-              </ul>
+          {selectedSummary && (
+            <div className="mb-6">
+              <h2 className="text-lg font-bold mb-2">Summary</h2>
+              <p className="text-sm">{selectedSummary.content}</p>
             </div>
+          )}
 
-            <div className="mb-4">
-              <div className="flex justify-between items-baseline mb-1">
-                <h3 className="font-bold">Software Engineer</h3>
-                <span className="text-sm">Jun 2021 - Dec 2021</span>
-              </div>
-              <p className="text-sm font-medium mb-2">Tech Corp</p>
-              <ul className="list-disc pl-5 space-y-1">
-                <li className="text-sm">
-                  Developed RESTful APIs using Node.js and Express
-                </li>
-              </ul>
+          {visibleCompanies.length > 0 && (
+            <div className="mb-6">
+              <h2 className="text-lg font-bold mb-2">Work Experience</h2>
+              
+              {visibleCompanies.map((company) => (
+                <div key={company.id} className="mb-4">
+                  {company.positions.map((position) => (
+                    <div key={position.id} className="mb-4">
+                      <div className="flex justify-between items-baseline mb-1">
+                        <h3 className="font-bold">{position.title}</h3>
+                        <span className="text-sm">
+                          {position.startDate} - {position.endDate || 'Present'}
+                        </span>
+                      </div>
+                      <p className="text-sm font-medium mb-2">{company.name}</p>
+                      
+                      {position.projects.map((project) => {
+                        const projectBullets = getBulletsForProject(project.id);
+                        const projectVisible = (project as any).isVisible !== false;
+                        
+                        if (projectBullets.length === 0) return null;
+                        
+                        return (
+                          <div key={project.id} className="mb-2">
+                            {projectVisible && (
+                              <p className="text-sm font-medium italic mb-1">{project.name}</p>
+                            )}
+                            <ul className="list-disc pl-5 space-y-1">
+                              {projectBullets.map((bullet) => (
+                                <li key={bullet.id} className="text-sm">
+                                  {bullet.content}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ))}
+                </div>
+              ))}
             </div>
-
-            <div className="mb-4">
-              <div className="flex justify-between items-baseline mb-1">
-                <h3 className="font-bold">Full Stack Developer</h3>
-                <span className="text-sm">Jun 2020 - May 2021</span>
-              </div>
-              <p className="text-sm font-medium mb-2">StartupXYZ</p>
-              <ul className="list-disc pl-5 space-y-1">
-                <li className="text-sm">
-                  Built responsive web applications using React and Node.js
-                </li>
-                <li className="text-sm">
-                  Created React Native mobile app with 50k+ downloads
-                </li>
-              </ul>
-            </div>
-          </div>
+          )}
 
           <div className="mb-6">
             <h2 className="text-lg font-bold mb-2">Education</h2>
@@ -116,7 +127,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
             <h2 className="text-lg font-bold mb-2">Skills</h2>
             <div className="flex flex-wrap gap-2">
               {['JavaScript', 'TypeScript', 'React', 'Node.js', 'Python', 'AWS', 'Docker', 'PostgreSQL'].map(skill => (
-                <span key={skill} className="px-3 py-1 bg-muted text-sm rounded">
+                <span key={skill} className="px-3 py-1 bg-gray-200 text-sm rounded">
                   {skill}
                 </span>
               ))}
@@ -124,8 +135,8 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
           </div>
         </div>
 
-        <div className="mt-8 pt-4 border-t border-border text-center text-xs text-muted-foreground">
-          Showing 2 companies • 3 positions • 5 bullet points
+        <div className="mt-8 pt-4 border-t border-gray-300 text-center text-xs text-gray-600">
+          Showing {visibleCompanies.length} companies • {selectedBullets.length} bullet points
         </div>
       </div>
     </div>

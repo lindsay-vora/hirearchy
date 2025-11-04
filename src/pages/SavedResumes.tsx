@@ -1,11 +1,57 @@
-import React from 'react';
-import { Search, Star, Copy, Trash2, Eye, FileText } from 'lucide-react';
+import React, { useState } from 'react';
+import { Search, Star, Copy, Trash2, Eye, FileText, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { useAppData } from '@/contexts/AppDataContext';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
+import { ConfirmDialog } from '@/components/dialogs/ConfirmDialog';
+import { EditDialog } from '@/components/dialogs/EditDialog';
 
 const SavedResumes: React.FC = () => {
-  const resumes = [
+  const { data, loadResumeVersion, deleteResumeVersion, saveResumeVersion } = useAppData();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [confirmDialog, setConfirmDialog] = useState<any>(null);
+  const [editDialog, setEditDialog] = useState<any>(null);
+  
+  const resumes = data.resumeVersions.map(rv => ({
+    ...rv,
+    bullets: data.bullets.filter(b => rv.selectedBullets.includes(b.id)).length,
+    companies: rv.selectedCompanies.length,
+    positions: 0,
+    summary: data.summaries.find(s => s.id === rv.summaryId)?.name || 'None',
+    created: new Date(rv.createdAt).toLocaleDateString(),
+    modified: new Date(rv.updatedAt).toLocaleDateString(),
+  }));
+
+  const handleLoad = (id: string) => {
+    loadResumeVersion(id);
+    navigate('/');
+    toast({ title: 'Resume loaded' });
+  };
+
+  const handleDelete = (resume: any) => {
+    setConfirmDialog({
+      open: true,
+      title: 'Delete Resume',
+      description: `Are you sure you want to delete "${resume.name}"?`,
+      onConfirm: () => {
+        deleteResumeVersion(resume.id);
+        toast({ title: 'Resume deleted' });
+      },
+    });
+  };
+
+  const handleCopy = (resume: any) => {
+    setEditDialog({
+      open: true,
+      data: resume,
+    });
+  };
+
+  const resumes_mock = [
     {
       id: '1',
       name: 'Software Engineering - FAANG',
@@ -84,7 +130,7 @@ const SavedResumes: React.FC = () => {
         </div>
 
         <div className="space-y-4">
-          {resumes.map((resume) => (
+          {(resumes.length > 0 ? resumes : resumes_mock).map((resume) => (
             <div
               key={resume.id}
               className="border border-border rounded-lg p-4 hover:shadow-md transition-shadow"
@@ -130,13 +176,13 @@ const SavedResumes: React.FC = () => {
                       <Star className="h-4 w-4" />
                     </Button>
                   )}
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleCopy(resume)}>
                     <Copy className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(resume)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
-                  <Button className="ml-2">
+                  <Button className="ml-2" onClick={() => handleLoad(resume.id)}>
                     <Eye className="h-4 w-4 mr-2" />
                     Load
                   </Button>
@@ -146,6 +192,25 @@ const SavedResumes: React.FC = () => {
           ))}
         </div>
       </div>
+
+      {confirmDialog && (
+        <ConfirmDialog {...confirmDialog} onOpenChange={(open) => !open && setConfirmDialog(null)} />
+      )}
+      {editDialog && (
+        <EditDialog
+          open={editDialog.open}
+          onOpenChange={(open) => !open && setEditDialog(null)}
+          title="Copy Resume"
+          fields={[{ name: 'name', label: 'Resume Name', value: `${editDialog.data.name} (Copy)` }]}
+          onSave={(values) => {
+            const version = data.resumeVersions.find(v => v.id === editDialog.data.id);
+            if (version) {
+              saveResumeVersion({ ...version, name: values.name });
+              toast({ title: 'Resume copied' });
+            }
+          }}
+        />
+      )}
     </div>
   );
 };

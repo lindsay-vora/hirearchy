@@ -3,14 +3,105 @@ import { AppData } from '@/types';
 const STORAGE_KEY = 'hirearchy_data';
 
 const defaultData: AppData = {
-  companies: [],
-  bullets: [],
-  summaries: [],
-  tags: [],
-  formats: [],
+  companies: [
+    {
+      id: 'tech-corp',
+      name: 'Tech Corp',
+      isVisible: true,
+      positions: [
+        {
+          id: 'senior-swe',
+          title: 'Senior Software Engineer',
+          startDate: '2022-01',
+          endDate: undefined,
+          projects: [
+            {
+              id: 'microservices',
+              name: 'Microservices Platform',
+              description: 'Cloud infrastructure modernization',
+              bulletCount: 2,
+              isVisible: true,
+            },
+          ],
+        },
+      ],
+    },
+  ],
+  bullets: [
+    {
+      id: 'bullet-1',
+      content: 'Led development of microservices architecture serving 10M+ users',
+      version: 'v1',
+      tags: ['Leadership', 'Backend', 'Cloud'],
+      projectId: 'microservices',
+      positionId: 'senior-swe',
+      companyId: 'tech-corp',
+      isSelected: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    {
+      id: 'bullet-2',
+      content: 'Architected and deployed scalable microservices infrastructure supporting 10M+ daily active users',
+      version: 'v2',
+      tags: ['Leadership', 'Cloud'],
+      projectId: 'microservices',
+      positionId: 'senior-swe',
+      companyId: 'tech-corp',
+      isSelected: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+  ],
+  summaries: [
+    {
+      id: 'summary-1',
+      name: 'Technical Leadership',
+      version: 'v1',
+      content: 'Experienced software engineer with 5+ years building scalable web applications and leading technical teams. Passionate about clean code, system design, and mentoring junior developers.',
+      isSelected: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    {
+      id: 'summary-2',
+      name: 'Full Stack Focus',
+      version: 'v2',
+      content: 'Full-stack software engineer specializing in React, Node.js, and cloud infrastructure. Proven track record of delivering high-performance applications serving millions of users.',
+      isSelected: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+  ],
+  tags: [
+    { id: 'tag-1', name: 'Leadership', color: '#3b82f6', createdAt: new Date().toISOString() },
+    { id: 'tag-2', name: 'Backend', color: '#10b981', createdAt: new Date().toISOString() },
+    { id: 'tag-3', name: 'Cloud', color: '#f97316', createdAt: new Date().toISOString() },
+  ],
+  formats: [
+    {
+      id: 'format-1',
+      name: 'Classic',
+      description: 'Clean, traditional format',
+      isDefault: true,
+      isFavorite: false,
+      settings: {
+        fontFamily: 'georgia',
+        fontSize: 11,
+        lineHeight: 1.5,
+        margins: 0.5,
+        sectionSpacing: 12,
+        headerStyle: 'bold',
+        bulletStyle: 'disc',
+        colorScheme: 'default',
+      },
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+  ],
   resumeVersions: [],
   currentEditing: {
-    resumeName: 'Untitled Resume',
+    resumeName: 'Software Engineering - FAANG',
   },
 };
 
