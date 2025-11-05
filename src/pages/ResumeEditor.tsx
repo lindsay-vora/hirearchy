@@ -921,6 +921,17 @@ const ResumeEditor: React.FC = () => {
           onSaveNewVersion={handleSaveNewBulletVersion}
         />
       )}
+
+      {summaryEditDialog && (
+        <EditSummaryDialog
+          open={summaryEditDialog.open}
+          onOpenChange={(open) => !open && setSummaryEditDialog(null)}
+          summary={summaryEditDialog.summary}
+          tags={data.tags || []}
+          onSave={handleSaveSummary}
+          onSaveNewVersion={handleSaveNewSummaryVersion}
+        />
+      )}
     </div>
   );
 };
