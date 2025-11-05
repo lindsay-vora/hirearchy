@@ -140,10 +140,53 @@ export const AppDataProvider: React.FC<{ children: ReactNode }> = ({ children })
     }));
   };
 
-  const updateSummaryOld = (id: string, updates: Partial<Summary>) => {
+  const updateSummary = (summaryId: string, content: string, versionTags: string[], selectedVersion?: string) => {
     setData(prev => ({
       ...prev,
-      summaries: prev.summaries.map(s => s.id === id ? { ...s, ...updates } : s),
+      summaries: prev.summaries.map(s => {
+        if (s.id !== summaryId) return s;
+        
+        const updated = { ...s, content, tags: versionTags, updatedAt: new Date().toISOString() };
+        
+        if (selectedVersion && s.versions) {
+          // Update existing version
+          updated.versions = s.versions.map(v =>
+            v.version === selectedVersion
+              ? { ...v, content, tags: versionTags }
+              : v
+          );
+          updated.selectedVersion = selectedVersion;
+        }
+        
+        return updated;
+      }),
+    }));
+  };
+
+  const saveNewSummaryVersion = (summaryId: string, content: string, versionTags: string[]) => {
+    setData(prev => ({
+      ...prev,
+      summaries: prev.summaries.map(s => {
+        if (s.id !== summaryId) return s;
+        
+        const newVersion = `v${(s.versions?.length || 0) + 1}`;
+        const newVersionData = {
+          version: newVersion,
+          content,
+          tags: versionTags,
+          createdAt: new Date().toISOString()
+        };
+        
+        return {
+          ...s,
+          content,
+          tags: versionTags,
+          version: newVersion,
+          selectedVersion: newVersion,
+          versions: [...(s.versions || []), newVersionData],
+          updatedAt: new Date().toISOString()
+        };
+      }),
     }));
   };
 
@@ -434,6 +477,7 @@ export const AppDataProvider: React.FC<{ children: ReactNode }> = ({ children })
         reorderBullets,
         addSummary,
         updateSummary,
+        saveNewSummaryVersion,
         deleteSummary,
         selectSummary,
         saveResumeVersion,

@@ -275,7 +275,7 @@ const ResumeEditor: React.FC = () => {
       updateCompany(editDialog.data.id, { name: values.name });
       toast({ title: 'Company updated' });
     } else if (editDialog.type === 'summary') {
-      updateSummary(editDialog.data.id, { name: values.name, content: values.content });
+      // Note: Summary editing is now handled by EditSummaryDialog
       toast({ title: 'Summary updated' });
     } else if (editDialog.type === 'bullet') {
       updateBullet(editDialog.data.id, { content: values.content });
