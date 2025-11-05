@@ -71,3 +71,15 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+
+## License
+
+This project is licensed under the PolyForm Noncommercial License 1.0.0 - see the [LICENSE](LICENSE) file for details.
+
+This means you are free to use this software for any noncommercial purpose, including:
+- Personal use, research, and experimentation
+- Educational and academic purposes
+- Use by charitable organizations and government institutions
+- Hobby projects and amateur pursuits
+
+Commercial use requires a separate license. For commercial licensing inquiries, please contact the project maintainer.

@@ -51,11 +51,21 @@ export interface Bullet {
   updatedAt: string;
 }
 
+export interface SummaryVersion {
+  version: string;
+  content: string;
+  tags: string[];
+  createdAt: string;
+}
+
 export interface Summary {
   id: string;
   name: string;
   version: string;
   content: string;
+  versions: SummaryVersion[];
+  selectedVersion?: string;
+  tags: string[];
   isSelected?: boolean;
   createdAt: string;
   updatedAt: string;

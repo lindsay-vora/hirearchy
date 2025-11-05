@@ -8,22 +8,22 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, X } from 'lucide-react';
-import { Bullet, BulletVersion, Tag } from '@/types';
+import { Summary, SummaryVersion, Tag } from '@/types';
 import { useAppData } from '@/contexts/AppDataContext';
 
-interface EditBulletDialogProps {
+interface EditSummaryDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  bullet: Bullet | null;
+  summary: Summary | null;
   tags: Tag[];
-  onSave: (bulletId: string, content: string, versionTags: string[], selectedVersion?: string) => void;
-  onSaveNewVersion: (bulletId: string, content: string, versionTags: string[]) => void;
+  onSave: (summaryId: string, content: string, versionTags: string[], selectedVersion?: string) => void;
+  onSaveNewVersion: (summaryId: string, content: string, versionTags: string[]) => void;
 }
 
-export const EditBulletDialog: React.FC<EditBulletDialogProps> = ({
+export const EditSummaryDialog: React.FC<EditSummaryDialogProps> = ({
   open,
   onOpenChange,
-  bullet,
+  summary,
   tags,
   onSave,
   onSaveNewVersion,
@@ -36,20 +36,20 @@ export const EditBulletDialog: React.FC<EditBulletDialogProps> = ({
   const [newTagName, setNewTagName] = useState('');
 
   useEffect(() => {
-    if (bullet) {
-      const version = bullet.selectedVersion || bullet.version;
+    if (summary) {
+      const version = summary.selectedVersion || summary.version;
       setSelectedVersion(version);
-      const versionData = bullet.versions?.find((v: BulletVersion) => v.version === version) || { content: bullet.content, tags: bullet.tags || [] };
+      const versionData = summary.versions?.find((v: SummaryVersion) => v.version === version) || { content: summary.content, tags: summary.tags || [] };
       setContent(versionData.content);
       setVersionTags(versionData.tags || []);
       setIsNewVersion(false);
     }
-  }, [bullet, open]);
+  }, [summary, open]);
 
   const handleVersionChange = (version: string) => {
-    if (!bullet) return;
+    if (!summary) return;
     setSelectedVersion(version);
-    const versionData = bullet.versions?.find((v: BulletVersion) => v.version === version);
+    const versionData = summary.versions?.find((v: SummaryVersion) => v.version === version);
     if (versionData) {
       setContent(versionData.content);
       setVersionTags(versionData.tags || []);
@@ -75,26 +75,26 @@ export const EditBulletDialog: React.FC<EditBulletDialogProps> = ({
   };
 
   const handleSave = () => {
-    if (!bullet) return;
+    if (!summary) return;
 
     if (isNewVersion) {
-      onSaveNewVersion(bullet.id, content, versionTags);
+      onSaveNewVersion(summary.id, content, versionTags);
     } else {
-      onSave(bullet.id, content, versionTags, selectedVersion);
+      onSave(summary.id, content, versionTags, selectedVersion);
     }
     
     onOpenChange(false);
   };
 
-  if (!bullet) return null;
+  if (!summary) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Edit Bullet Point</DialogTitle>
+          <DialogTitle>Edit Summary</DialogTitle>
           <DialogDescription>
-            Edit the content and tags for this bullet. Select a version to edit or create a new version.
+            Edit the content and tags for this summary. Select a version to edit or create a new version.
           </DialogDescription>
         </DialogHeader>
 
@@ -107,7 +107,7 @@ export const EditBulletDialog: React.FC<EditBulletDialogProps> = ({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {bullet.versions?.map((v: BulletVersion) => (
+                  {summary.versions?.map((v: SummaryVersion) => (
                     <SelectItem key={v.version} value={v.version}>
                       {v.version}
                     </SelectItem>
@@ -134,7 +134,7 @@ export const EditBulletDialog: React.FC<EditBulletDialogProps> = ({
               value={content}
               onChange={(e) => setContent(e.target.value)}
               className="min-h-[120px]"
-              placeholder="Enter bullet point content..."
+              placeholder="Enter summary content..."
             />
           </div>
 

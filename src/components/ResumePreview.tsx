@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Save, Download } from 'lucide-react';
+import { Save, Download, ChevronDown } from 'lucide-react';
 import { useAppData } from '@/contexts/AppDataContext';
 import { SaveVersionDialog } from '@/components/dialogs/SaveVersionDialog';
 import { useToast } from '@/hooks/use-toast';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { exportToCSV, exportToPDF, exportToDOCX } from '@/utils/exportResume';
 
 interface ResumePreviewProps {
-  onExport: () => void;
+  onExport?: () => void;
 }
 
 const ResumePreview: React.FC<ResumePreviewProps> = ({ 
@@ -64,10 +66,26 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
             <Save className="h-4 w-4 mr-2" />
             Save Version
           </Button>
-          <Button size="sm" onClick={onExport}>
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="sm">
+                <Download className="h-4 w-4 mr-2" />
+                Export
+                <ChevronDown className="h-4 w-4 ml-2" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => exportToPDF(data)}>
+                Export as PDF
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => exportToDOCX(data)}>
+                Export as DOCX
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => exportToCSV(data)}>
+                Export as CSV
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 

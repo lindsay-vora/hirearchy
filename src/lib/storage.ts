@@ -65,6 +65,11 @@ const defaultData: AppData = {
       name: 'Technical Leadership',
       version: 'v1',
       content: 'Experienced software engineer with 5+ years building scalable web applications and leading technical teams. Passionate about clean code, system design, and mentoring junior developers.',
+      versions: [
+        { version: 'v1', content: 'Experienced software engineer with 5+ years building scalable web applications and leading technical teams. Passionate about clean code, system design, and mentoring junior developers.', tags: [], createdAt: new Date().toISOString() }
+      ],
+      selectedVersion: 'v1',
+      tags: [],
       isSelected: true,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -74,6 +79,11 @@ const defaultData: AppData = {
       name: 'Full Stack Focus',
       version: 'v2',
       content: 'Full-stack software engineer specializing in React, Node.js, and cloud infrastructure. Proven track record of delivering high-performance applications serving millions of users.',
+      versions: [
+        { version: 'v1', content: 'Full-stack software engineer specializing in React, Node.js, and cloud infrastructure. Proven track record of delivering high-performance applications serving millions of users.', tags: [], createdAt: new Date().toISOString() }
+      ],
+      selectedVersion: 'v1',
+      tags: [],
       isSelected: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),

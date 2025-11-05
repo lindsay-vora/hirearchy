@@ -16,6 +16,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { AddCompanyDialog } from '@/components/dialogs/AddCompanyDialog';
 import { EditDialog } from '@/components/dialogs/EditDialog';
 import { EditBulletDialog } from '@/components/dialogs/EditBulletDialog';
+import { EditSummaryDialog } from '@/components/dialogs/EditSummaryDialog';
 import { ConfirmDialog } from '@/components/dialogs/ConfirmDialog';
 import { DraggableCompany } from '@/components/DraggableCompany';
 import { DatePicker } from '@/components/dialogs/DatePickerDialog';
@@ -99,7 +100,7 @@ const DraggableBullet: React.FC<DraggableBulletProps> = ({ bullet, onToggle, onE
 };
 
 const ResumeEditor: React.FC = () => {
-  const { data, addCompany, updateCompany, deleteCompany, reorderCompanies, toggleBulletSelection, reorderBullets, addSummary, updateSummary, deleteSummary, selectSummary, toggleCompanyVisibility, toggleProjectVisibility, addBullet, updateBullet, deleteBullet, addEducation, updateEducation, deleteEducation, addSkill, updateSkill, deleteSkill, addCertification, updateCertification, deleteCertification, addPosition, updatePosition, deletePosition, addProject, deleteProject } = useAppData();
+  const { data, addCompany, updateCompany, deleteCompany, reorderCompanies, toggleBulletSelection, reorderBullets, addSummary, updateSummary, saveNewSummaryVersion, deleteSummary, selectSummary, toggleCompanyVisibility, toggleProjectVisibility, addBullet, updateBullet, deleteBullet, addEducation, updateEducation, deleteEducation, addSkill, updateSkill, deleteSkill, addCertification, updateCertification, deleteCertification, addPosition, updatePosition, deletePosition, addProject, deleteProject } = useAppData();
   const { toast } = useToast();
   
   const [expandedCompanies, setExpandedCompanies] = useState<string[]>(['tech-corp']);
@@ -112,6 +113,7 @@ const ResumeEditor: React.FC = () => {
   const [editDialog, setEditDialog] = useState<{ open: boolean; type: string; data: any } | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<{ open: boolean; title: string; description: string; onConfirm: () => void } | null>(null);
   const [bulletEditDialog, setBulletEditDialog] = useState<{ open: boolean; bullet: any } | null>(null);
+  const [summaryEditDialog, setSummaryEditDialog] = useState<{ open: boolean; summary: any } | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -175,6 +177,11 @@ const ResumeEditor: React.FC = () => {
       name: 'New Summary',
       version: 'v1',
       content: 'Enter your professional summary here...',
+      versions: [
+        { version: 'v1', content: 'Enter your professional summary here...', tags: [], createdAt: new Date().toISOString() }
+      ],
+      selectedVersion: 'v1',
+      tags: [],
       isSelected: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -184,11 +191,17 @@ const ResumeEditor: React.FC = () => {
   };
 
   const handleEditSummary = (summary: any) => {
-    setEditDialog({
-      open: true,
-      type: 'summary',
-      data: summary,
-    });
+    setSummaryEditDialog({ open: true, summary });
+  };
+
+  const handleSaveSummary = (summaryId: string, content: string, versionTags: string[], selectedVersion?: string) => {
+    updateSummary(summaryId, content, versionTags, selectedVersion);
+    toast({ title: 'Summary updated' });
+  };
+
+  const handleSaveNewSummaryVersion = (summaryId: string, content: string, versionTags: string[]) => {
+    saveNewSummaryVersion(summaryId, content, versionTags);
+    toast({ title: 'New summary version created' });
   };
 
   const handleDuplicateSummary = (summary: any) => {

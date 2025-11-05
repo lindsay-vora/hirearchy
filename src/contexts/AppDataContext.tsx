@@ -15,7 +15,8 @@ interface AppDataContextType {
   toggleBulletSelection: (id: string) => void;
   reorderBullets: (bullets: Bullet[]) => void;
   addSummary: (summary: Summary) => void;
-  updateSummary: (id: string, summary: Partial<Summary>) => void;
+  updateSummary: (summaryId: string, content: string, versionTags: string[], selectedVersion?: string) => void;
+  saveNewSummaryVersion: (summaryId: string, content: string, versionTags: string[]) => void;
   deleteSummary: (id: string) => void;
   selectSummary: (id: string) => void;
   saveResumeVersion: (version: Omit<ResumeVersion, 'id' | 'createdAt' | 'updatedAt'>) => void;
@@ -38,6 +39,9 @@ interface AppDataContextType {
   deletePosition: (companyId: string, positionId: string) => void;
   addProject: (companyId: string, positionId: string, project: any) => void;
   deleteProject: (companyId: string, positionId: string, projectId: string) => void;
+  addTag: (tag: Omit<Tag, 'id' | 'createdAt'>) => void;
+  updateTag: (id: string, tag: Partial<Tag>) => void;
+  deleteTag: (id: string) => void;
 }
 
 const AppDataContext = createContext<AppDataContextType | undefined>(undefined);
@@ -136,7 +140,7 @@ export const AppDataProvider: React.FC<{ children: ReactNode }> = ({ children })
     }));
   };
 
-  const updateSummary = (id: string, updates: Partial<Summary>) => {
+  const updateSummaryOld = (id: string, updates: Partial<Summary>) => {
     setData(prev => ({
       ...prev,
       summaries: prev.summaries.map(s => s.id === id ? { ...s, ...updates } : s),
@@ -388,6 +392,32 @@ export const AppDataProvider: React.FC<{ children: ReactNode }> = ({ children })
     }));
   };
 
+  const addTag = (tag: Omit<Tag, 'id' | 'createdAt'>) => {
+    const newTag: Tag = {
+      ...tag,
+      id: `tag-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+    };
+    setData(prev => ({
+      ...prev,
+      tags: [...prev.tags, newTag],
+    }));
+  };
+
+  const updateTag = (id: string, updates: Partial<Tag>) => {
+    setData(prev => ({
+      ...prev,
+      tags: prev.tags.map(t => t.id === id ? { ...t, ...updates } : t),
+    }));
+  };
+
+  const deleteTag = (id: string) => {
+    setData(prev => ({
+      ...prev,
+      tags: prev.tags.filter(t => t.id !== id),
+    }));
+  };
+
   return (
     <AppDataContext.Provider
       value={{
@@ -426,6 +456,9 @@ export const AppDataProvider: React.FC<{ children: ReactNode }> = ({ children })
         deletePosition,
         addProject,
         deleteProject,
+        addTag,
+        updateTag,
+        deleteTag,
       }}
     >
       {children}
