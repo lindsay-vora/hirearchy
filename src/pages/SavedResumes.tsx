@@ -179,10 +179,6 @@ const SavedResumes: React.FC = () => {
             <p className="text-3xl font-bold">{(data.resumeVersions || []).length}</p>
           </div>
           <div className="border border-border rounded-lg p-4">
-            <p className="text-sm text-muted-foreground mb-1">Default Resume</p>
-            <p className="text-lg font-semibold">Software Engineering - FAANG</p>
-          </div>
-          <div className="border border-border rounded-lg p-4">
             <p className="text-sm text-muted-foreground mb-1">Last Modified</p>
             <p className="text-lg font-semibold">2 hours ago</p>
           </div>
