@@ -4,12 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { DatePicker } from './DatePickerDialog';
 
 interface EditDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
-  fields: Array<{ name: string; label: string; value: string; type?: 'input' | 'textarea' }>;
+  fields: Array<{ name: string; label: string; value: string; type?: 'input' | 'textarea' | 'date' }>;
   onSave: (values: Record<string, string>) => void;
 }
 
@@ -45,6 +46,12 @@ export const EditDialog: React.FC<EditDialogProps> = ({ open, onOpenChange, titl
                   value={values[field.name] || ''}
                   onChange={(e) => setValues({ ...values, [field.name]: e.target.value })}
                   rows={4}
+                />
+              ) : field.type === 'date' ? (
+                <DatePicker
+                  value={values[field.name] || ''}
+                  onChange={(date) => setValues({ ...values, [field.name]: date })}
+                  placeholder="Pick a date"
                 />
               ) : (
                 <Input

@@ -15,8 +15,10 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { AddCompanyDialog } from '@/components/dialogs/AddCompanyDialog';
 import { EditDialog } from '@/components/dialogs/EditDialog';
+import { EditBulletDialog } from '@/components/dialogs/EditBulletDialog';
 import { ConfirmDialog } from '@/components/dialogs/ConfirmDialog';
 import { DraggableCompany } from '@/components/DraggableCompany';
+import { DatePicker } from '@/components/dialogs/DatePickerDialog';
 import { DraggablePosition } from '@/components/DraggablePosition';
 import { useAppData } from '@/contexts/AppDataContext';
 import { Company, Position, Project } from '@/types';
@@ -97,7 +99,7 @@ const DraggableBullet: React.FC<DraggableBulletProps> = ({ bullet, onToggle, onE
 };
 
 const ResumeEditor: React.FC = () => {
-  const { data, addCompany, updateCompany, deleteCompany, toggleBulletSelection, addSummary, updateSummary, deleteSummary, selectSummary, toggleCompanyVisibility, toggleProjectVisibility, addBullet, updateBullet, deleteBullet, addEducation, updateEducation, deleteEducation, addSkill, updateSkill, deleteSkill, addCertification, updateCertification, deleteCertification, addPosition, updatePosition, deletePosition } = useAppData();
+  const { data, addCompany, updateCompany, deleteCompany, reorderCompanies, toggleBulletSelection, reorderBullets, addSummary, updateSummary, deleteSummary, selectSummary, toggleCompanyVisibility, toggleProjectVisibility, addBullet, updateBullet, deleteBullet, addEducation, updateEducation, deleteEducation, addSkill, updateSkill, deleteSkill, addCertification, updateCertification, deleteCertification, addPosition, updatePosition, deletePosition, addProject, deleteProject } = useAppData();
   const { toast } = useToast();
   
   const [expandedCompanies, setExpandedCompanies] = useState<string[]>(['tech-corp']);
@@ -109,6 +111,7 @@ const ResumeEditor: React.FC = () => {
   const [showAddCompanyDialog, setShowAddCompanyDialog] = useState(false);
   const [editDialog, setEditDialog] = useState<{ open: boolean; type: string; data: any } | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<{ open: boolean; title: string; description: string; onConfirm: () => void } | null>(null);
+  const [bulletEditDialog, setBulletEditDialog] = useState<{ open: boolean; bullet: any } | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -214,10 +217,9 @@ const ResumeEditor: React.FC = () => {
   };
 
   const handleEditBullet = (bullet: any) => {
-    setEditDialog({
+    setBulletEditDialog({
       open: true,
-      type: 'bullet',
-      data: bullet,
+      bullet,
     });
   };
 
@@ -239,7 +241,7 @@ const ResumeEditor: React.FC = () => {
       content: 'Enter your achievement here...',
       version: 'v1',
       versions: [
-        { version: 'v1', content: 'Enter your achievement here...', createdAt: new Date().toISOString() }
+        { version: 'v1', content: 'Enter your achievement here...', tags: [], createdAt: new Date().toISOString() }
       ],
       tags: [],
       projectId,
@@ -438,6 +440,18 @@ const ResumeEditor: React.FC = () => {
   };
 
   // Project handlers
+  const handleAddProject = (positionId: string, companyId: string) => {
+    const newProject = {
+      id: `proj-${Date.now()}`,
+      name: 'New Project',
+      description: '',
+      bulletCount: 0,
+      isVisible: true,
+    };
+    addProject(companyId, positionId, newProject);
+    toast({ title: 'Project added' });
+  };
+
   const handleEditProject = (project: Project, positionId: string, companyId: string) => {
     setEditDialog({
       open: true,
@@ -446,18 +460,72 @@ const ResumeEditor: React.FC = () => {
     });
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDeleteProject = (companyId: string, positionId: string, projectId: string) => {
+    setConfirmDialog({
+      open: true,
+      title: 'Delete Project',
+      description: 'Are you sure you want to delete this project? This will also delete all bullets.',
+      onConfirm: () => {
+        deleteProject(companyId, positionId, projectId);
+        toast({ title: 'Project deleted' });
+      },
+    });
+  };
+
+  const handleCompanyDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     
     if (over && active.id !== over.id) {
-      const activeIndex = (data.bullets || []).findIndex(b => b.id === active.id);
-      const overIndex = (data.bullets || []).findIndex(b => b.id === over.id);
+      const oldIndex = (data.companies || []).findIndex(c => c.id === active.id);
+      const newIndex = (data.companies || []).findIndex(c => c.id === over.id);
       
-      if (activeIndex !== -1 && overIndex !== -1) {
-        // This would need a reorder bullets function in context
-        toast({ title: 'Bullets reordered' });
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const reordered = arrayMove(data.companies || [], oldIndex, newIndex);
+        reorderCompanies(reordered);
+        toast({ title: 'Companies reordered' });
       }
     }
+  };
+
+  const handlePositionDragEnd = (companyId: string) => (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    if (over && active.id !== over.id) {
+      const company = (data.companies || []).find(c => c.id === companyId);
+      if (!company) return;
+      
+      const oldIndex = company.positions.findIndex(p => p.id === active.id);
+      const newIndex = company.positions.findIndex(p => p.id === over.id);
+      
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const reordered = arrayMove(company.positions, oldIndex, newIndex);
+        updateCompany(companyId, { positions: reordered });
+        toast({ title: 'Positions reordered' });
+      }
+    }
+  };
+
+  const handleBulletDragEnd = (bullets: any[]) => {
+    reorderBullets(bullets);
+    toast({ title: 'Bullets reordered' });
+  };
+
+  const handleSaveBullet = (bulletId: string, content: string, versionTags: string[], selectedVersion?: string) => {
+    const bullet = (data.bullets || []).find(b => b.id === bulletId);
+    if (!bullet) return;
+
+    const versionIndex = bullet.versions.findIndex(v => v.version === selectedVersion);
+    if (versionIndex !== -1) {
+      const updatedVersions = [...bullet.versions];
+      updatedVersions[versionIndex] = { ...updatedVersions[versionIndex], content, tags: versionTags };
+      updateBullet(bulletId, { versions: updatedVersions, content, tags: versionTags });
+    }
+    toast({ title: 'Bullet updated' });
+  };
+
+  const handleSaveNewBulletVersion = (bulletId: string, content: string, versionTags: string[]) => {
+    updateBullet(bulletId, { content, tags: versionTags });
+    toast({ title: 'New bullet version created' });
   };
 
   const handleExport = () => {
@@ -578,7 +646,7 @@ const ResumeEditor: React.FC = () => {
                 </div>
 
                 <div className="space-y-3 max-w-4xl">
-                  <DndContext sensors={sensors} collisionDetection={closestCenter}>
+                  <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleCompanyDragEnd}>
                     <SortableContext items={(data.companies || []).map(c => c.id)} strategy={verticalListSortingStrategy}>
                       {(data.companies || []).map((company) => (
                         <DraggableCompany
@@ -593,7 +661,7 @@ const ResumeEditor: React.FC = () => {
                         >
                           {expandedCompanies.includes(company.id) && (
                             <div className="p-4 space-y-3">
-                              <DndContext sensors={sensors} collisionDetection={closestCenter}>
+                              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handlePositionDragEnd(company.id)}>
                                 <SortableContext items={(company.positions || []).map(p => p.id)} strategy={verticalListSortingStrategy}>
                                   {(company.positions || []).map((position) => (
                                     <DraggablePosition
@@ -603,9 +671,9 @@ const ResumeEditor: React.FC = () => {
                                       expanded={expandedPositions.includes(position.id)}
                                       onToggle={() => togglePosition(position.id)}
                                       onEdit={() => handleEditPosition(position, company.id)}
-                        onDelete={() => handleDeletePosition(position.id, company.id)}
-                        bullets={data.bullets || []}
-                        tags={data.tags || []}
+                                      onDelete={() => handleDeletePosition(position.id, company.id)}
+                                      bullets={data.bullets || []}
+                                      tags={data.tags || []}
                                       onAddBullet={handleAddBullet}
                                       onEditBullet={handleEditBullet}
                                       onDeleteBullet={handleDeleteBullet}
@@ -617,6 +685,9 @@ const ResumeEditor: React.FC = () => {
                                       onToggleProject={toggleProject}
                                       onToggleProjectVisibility={toggleProjectVisibility}
                                       onEditProject={handleEditProject}
+                                      onDeleteProject={(projectId) => handleDeleteProject(company.id, position.id, projectId)}
+                                      onAddProject={() => handleAddProject(position.id, company.id)}
+                                      onBulletDragEnd={handleBulletDragEnd}
                                       sensors={sensors}
                                     />
                                   ))}
@@ -786,8 +857,8 @@ const ResumeEditor: React.FC = () => {
             ] :
             editDialog.type === 'position' ? [
               { name: 'title', label: 'Job Title', value: editDialog.data.title },
-              { name: 'startDate', label: 'Start Date', value: editDialog.data.startDate },
-              { name: 'endDate', label: 'End Date (leave empty for Present)', value: editDialog.data.endDate || '' }
+              { name: 'startDate', label: 'Start Date (Month YYYY)', value: editDialog.data.startDate, type: 'date' as const },
+              { name: 'endDate', label: 'End Date (leave empty for Present)', value: editDialog.data.endDate || '', type: 'date' as const }
             ] :
             editDialog.type === 'project' ? [
               { name: 'name', label: 'Project Name', value: editDialog.data.name },
@@ -796,8 +867,8 @@ const ResumeEditor: React.FC = () => {
             editDialog.type === 'education' ? [
               { name: 'degree', label: 'Degree', value: editDialog.data.degree },
               { name: 'institution', label: 'Institution', value: editDialog.data.institution },
-              { name: 'startDate', label: 'Start Date', value: editDialog.data.startDate },
-              { name: 'endDate', label: 'End Date (leave empty for Present)', value: editDialog.data.endDate || '' },
+              { name: 'startDate', label: 'Start Date (Month YYYY)', value: editDialog.data.startDate, type: 'date' as const },
+              { name: 'endDate', label: 'End Date (leave empty for Present)', value: editDialog.data.endDate || '', type: 'date' as const },
               { name: 'description', label: 'Description', value: editDialog.data.description || '', type: 'textarea' as const }
             ] :
             editDialog.type === 'skill' ? [
@@ -824,6 +895,17 @@ const ResumeEditor: React.FC = () => {
             confirmDialog.onConfirm();
             setConfirmDialog(null);
           }}
+        />
+      )}
+
+      {bulletEditDialog && (
+        <EditBulletDialog
+          open={bulletEditDialog.open}
+          onOpenChange={(open) => !open && setBulletEditDialog(null)}
+          bullet={bulletEditDialog.bullet}
+          tags={data.tags || []}
+          onSave={handleSaveBullet}
+          onSaveNewVersion={handleSaveNewBulletVersion}
         />
       )}
     </div>

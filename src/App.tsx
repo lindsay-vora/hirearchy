@@ -8,6 +8,7 @@ import ResumeEditor from "./pages/ResumeEditor";
 import TagManager from "./pages/TagManager";
 import SavedResumes from "./pages/SavedResumes";
 import Settings from "./pages/Settings";
+import Feedback from "./pages/Feedback";
 import NotFound from "./pages/NotFound";
 import { AppDataProvider } from "./contexts/AppDataContext";
 
@@ -24,6 +25,7 @@ const App = () => (
             <Route path="/tags" element={<TagManager />} />
             <Route path="/saved" element={<SavedResumes />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/feedback" element={<Feedback />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AppLayout>

@@ -208,11 +208,15 @@ const SavedResumes: React.FC = () => {
                   </div>
                   <p className="text-sm text-muted-foreground mb-3">{resume.description}</p>
                   <div className="flex items-center gap-2 mb-3">
-                    {resume.tags.map(tag => (
-                      <Badge key={tag} variant="secondary" className="text-xs">
-                        {tag}
-                      </Badge>
-                    ))}
+                    {resume.tags.map(tagName => {
+                      const tag = (data.tags || []).find(t => t.name === tagName);
+                      return (
+                        <Badge key={tagName} variant="secondary" className="text-xs">
+                          {tag && <span className="w-2 h-2 rounded-full mr-1" style={{ backgroundColor: tag.color }}></span>}
+                          {tagName}
+                        </Badge>
+                      );
+                    })}
                   </div>
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <span>{resume.bullets} bullets</span>

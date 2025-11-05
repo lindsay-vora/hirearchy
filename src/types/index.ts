@@ -32,6 +32,7 @@ export interface Company {
 export interface BulletVersion {
   version: string;
   content: string;
+  tags: string[];
   createdAt: string;
 }
 

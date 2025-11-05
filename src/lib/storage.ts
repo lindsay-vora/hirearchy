@@ -33,7 +33,7 @@ const defaultData: AppData = {
       content: 'Led development of microservices architecture serving 10M+ users',
       version: 'v1',
       versions: [
-        { version: 'v1', content: 'Led development of microservices architecture serving 10M+ users', createdAt: new Date().toISOString() }
+        { version: 'v1', content: 'Led development of microservices architecture serving 10M+ users', tags: ['Leadership', 'Backend', 'Cloud'], createdAt: new Date().toISOString() }
       ],
       tags: ['Leadership', 'Backend', 'Cloud'],
       projectId: 'microservices',
@@ -48,7 +48,7 @@ const defaultData: AppData = {
       content: 'Architected and deployed scalable microservices infrastructure supporting 10M+ daily active users',
       version: 'v1',
       versions: [
-        { version: 'v1', content: 'Architected and deployed scalable microservices infrastructure supporting 10M+ daily active users', createdAt: new Date().toISOString() }
+        { version: 'v1', content: 'Architected and deployed scalable microservices infrastructure supporting 10M+ daily active users', tags: ['Leadership', 'Cloud'], createdAt: new Date().toISOString() }
       ],
       tags: ['Leadership', 'Cloud'],
       projectId: 'microservices',

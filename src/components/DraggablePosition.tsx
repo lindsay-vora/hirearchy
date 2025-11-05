@@ -27,6 +27,9 @@ interface DraggablePositionProps {
   onToggleProject: (projectId: string) => void;
   onToggleProjectVisibility: (companyId: string, positionId: string, projectId: string) => void;
   onEditProject: (project: any, positionId: string, companyId: string) => void;
+  onDeleteProject: (projectId: string) => void;
+  onAddProject: () => void;
+  onBulletDragEnd: (bullets: Bullet[]) => void;
   sensors: any;
 }
 
@@ -48,6 +51,9 @@ export const DraggablePosition: React.FC<DraggablePositionProps> = ({
   onToggleProject,
   onToggleProjectVisibility,
   onEditProject,
+  onDeleteProject,
+  onAddProject,
+  onBulletDragEnd,
   sensors,
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: position.id });
@@ -63,8 +69,19 @@ export const DraggablePosition: React.FC<DraggablePositionProps> = ({
   const projects = position.projects || [];
 
   const handleDragEnd = (event: DragEndEvent) => {
-    // Handle bullet reordering within projects
-    console.log('Drag end:', event);
+    const { active, over } = event;
+    
+    if (over && active.id !== over.id) {
+      const activeIndex = bullets.findIndex(b => b.id === active.id);
+      const overIndex = bullets.findIndex(b => b.id === over.id);
+      
+      if (activeIndex !== -1 && overIndex !== -1) {
+        const newBullets = [...bullets];
+        const [removed] = newBullets.splice(activeIndex, 1);
+        newBullets.splice(overIndex, 0, removed);
+        onBulletDragEnd(newBullets);
+      }
+    }
   };
 
   return (
@@ -88,7 +105,7 @@ export const DraggablePosition: React.FC<DraggablePositionProps> = ({
               <div className="font-medium">{position.title}</div>
             </div>
             <span className="text-sm text-muted-foreground mr-2">{selectedCount} / {positionBullets.length}</span>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onAddProject}>
               <Plus className="h-4 w-4" />
             </Button>
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onEdit}>
@@ -139,7 +156,7 @@ export const DraggablePosition: React.FC<DraggablePositionProps> = ({
                       <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onEditProject(project, position.id, company.id)}>
                         <Pencil className="h-3 w-3" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7">
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onDeleteProject(project.id)}>
                         <Trash2 className="h-3 w-3" />
                       </Button>
                     </div>

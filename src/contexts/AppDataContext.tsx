@@ -13,6 +13,7 @@ interface AppDataContextType {
   updateBullet: (id: string, bullet: Partial<Bullet>) => void;
   deleteBullet: (id: string) => void;
   toggleBulletSelection: (id: string) => void;
+  reorderBullets: (bullets: Bullet[]) => void;
   addSummary: (summary: Summary) => void;
   updateSummary: (id: string, summary: Partial<Summary>) => void;
   deleteSummary: (id: string) => void;
@@ -35,6 +36,8 @@ interface AppDataContextType {
   addPosition: (companyId: string, position: Position) => void;
   updatePosition: (companyId: string, positionId: string, position: Partial<Position>) => void;
   deletePosition: (companyId: string, positionId: string) => void;
+  addProject: (companyId: string, positionId: string, project: any) => void;
+  deleteProject: (companyId: string, positionId: string, projectId: string) => void;
 }
 
 const AppDataContext = createContext<AppDataContextType | undefined>(undefined);
@@ -94,7 +97,7 @@ export const AppDataProvider: React.FC<{ children: ReactNode }> = ({ children })
             const newVersion = `v${b.versions.length + 1}`;
             updated.versions = [
               ...b.versions,
-              { version: newVersion, content: updates.content, createdAt: new Date().toISOString() }
+              { version: newVersion, content: updates.content, tags: updates.tags || b.tags || [], createdAt: new Date().toISOString() }
             ];
             updated.version = newVersion;
             updated.selectedVersion = newVersion;
@@ -120,6 +123,10 @@ export const AppDataProvider: React.FC<{ children: ReactNode }> = ({ children })
         b.id === id ? { ...b, isSelected: !b.isSelected } : b
       ),
     }));
+  };
+
+  const reorderBullets = (bullets: Bullet[]) => {
+    setData(prev => ({ ...prev, bullets }));
   };
 
   const addSummary = (summary: Summary) => {
@@ -344,6 +351,43 @@ export const AppDataProvider: React.FC<{ children: ReactNode }> = ({ children })
     }));
   };
 
+  const addProject = (companyId: string, positionId: string, project: any) => {
+    setData(prev => ({
+      ...prev,
+      companies: prev.companies.map(c =>
+        c.id === companyId
+          ? {
+              ...c,
+              positions: c.positions.map(p =>
+                p.id === positionId
+                  ? { ...p, projects: [...(p.projects || []), project] }
+                  : p
+              ),
+            }
+          : c
+      ),
+    }));
+  };
+
+  const deleteProject = (companyId: string, positionId: string, projectId: string) => {
+    setData(prev => ({
+      ...prev,
+      companies: prev.companies.map(c =>
+        c.id === companyId
+          ? {
+              ...c,
+              positions: c.positions.map(p =>
+                p.id === positionId
+                  ? { ...p, projects: (p.projects || []).filter(proj => proj.id !== projectId) }
+                  : p
+              ),
+            }
+          : c
+      ),
+      bullets: prev.bullets.filter(b => b.projectId !== projectId),
+    }));
+  };
+
   return (
     <AppDataContext.Provider
       value={{
@@ -357,6 +401,7 @@ export const AppDataProvider: React.FC<{ children: ReactNode }> = ({ children })
         updateBullet,
         deleteBullet,
         toggleBulletSelection,
+        reorderBullets,
         addSummary,
         updateSummary,
         deleteSummary,
@@ -379,6 +424,8 @@ export const AppDataProvider: React.FC<{ children: ReactNode }> = ({ children })
         addPosition,
         updatePosition,
         deletePosition,
+        addProject,
+        deleteProject,
       }}
     >
       {children}
