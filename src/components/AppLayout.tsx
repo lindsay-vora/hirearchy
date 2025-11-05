@@ -15,7 +15,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     { path: '/tags', label: 'Tag Manager', icon: Tag },
     { path: '/saved', label: 'Saved Resumes', icon: Layers },
     { path: '/settings', label: 'Settings', icon: Settings },
-    { path: '/feedback', label: 'Feedback', icon: MessageSquare },
+    { path: '/feedback', label: 'Help & Support', icon: MessageSquare },
   ];
 
   return (
