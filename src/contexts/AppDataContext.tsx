@@ -180,7 +180,7 @@ export const AppDataProvider: React.FC<{ children: ReactNode }> = ({ children })
   };
 
   const loadResumeVersion = (id: string) => {
-    const version = data.resumeVersions.find(v => v.id === id);
+    const version = (data.resumeVersions || []).find(v => v.id === id);
     if (!version) return;
 
     setData(prev => ({

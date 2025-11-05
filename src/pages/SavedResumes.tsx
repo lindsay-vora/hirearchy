@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Star, Copy, Trash2, Eye, FileText, Pencil } from 'lucide-react';
+import { Search, Star, Copy, Trash2, Eye, FileText, Pencil, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -92,6 +92,18 @@ const SavedResumes: React.FC = () => {
     });
   };
 
+  const handleAddNew = () => {
+    setEditDialog({
+      open: true,
+      action: 'add',
+      data: {
+        name: '',
+        description: '',
+        tags: [],
+      },
+    });
+  };
+
   const resumes_mock = [
     {
       id: '1',
@@ -140,9 +152,15 @@ const SavedResumes: React.FC = () => {
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl font-bold">Saved Resume Versions</h1>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>Editing:</span>
-              <span className="font-semibold text-foreground">Software Engineering - FAANG</span>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span>Editing:</span>
+                <span className="font-semibold text-foreground">{data.currentEditing.resumeName || 'Unsaved Resume'}</span>
+              </div>
+              <Button onClick={handleAddNew}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add New
+              </Button>
             </div>
           </div>
           <p className="text-sm text-muted-foreground">
@@ -239,12 +257,12 @@ const SavedResumes: React.FC = () => {
         <EditDialog
           open={editDialog.open}
           onOpenChange={(open) => !open && setEditDialog(null)}
-          title={editDialog.action === 'edit' ? 'Edit Resume' : 'Copy Resume'}
+          title={editDialog.action === 'edit' ? 'Edit Resume' : editDialog.action === 'add' ? 'Add New Resume' : 'Copy Resume'}
           fields={[
             { 
               name: 'name', 
               label: 'Resume Name', 
-              value: editDialog.action === 'edit' ? editDialog.data.name : `${editDialog.data.name} (Copy)` 
+              value: editDialog.action === 'edit' ? editDialog.data.name : editDialog.action === 'copy' ? `${editDialog.data.name} (Copy)` : '' 
             },
             { 
               name: 'description', 
@@ -268,6 +286,16 @@ const SavedResumes: React.FC = () => {
                 tags,
               });
               toast({ title: 'Resume updated' });
+            } else if (editDialog.action === 'add') {
+              saveResumeVersion({
+                name: values.name,
+                description: values.description,
+                tags,
+                summaryId: (data.summaries || []).find(s => s.isSelected)?.id || '',
+                selectedBullets: (data.bullets || []).filter(b => b.isSelected).map(b => b.id),
+                selectedCompanies: (data.companies || []).filter(c => c.isVisible !== false).map(c => c.id),
+              });
+              toast({ title: 'Resume created' });
             } else {
               const version = (data.resumeVersions || []).find(v => v.id === editDialog.data.id);
               if (version) {
