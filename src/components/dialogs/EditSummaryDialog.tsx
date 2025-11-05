@@ -49,6 +49,7 @@ export const EditSummaryDialog: React.FC<EditSummaryDialogProps> = ({
   const handleVersionChange = (version: string) => {
     if (!summary) return;
     setSelectedVersion(version);
+    setIsNewVersion(false);
     const versionData = summary.versions?.find((v: SummaryVersion) => v.version === version);
     if (versionData) {
       setContent(versionData.content);
@@ -99,30 +100,34 @@ export const EditSummaryDialog: React.FC<EditSummaryDialogProps> = ({
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <div className="flex-1">
-              <Label htmlFor="version">Version</Label>
-              <Select value={selectedVersion} onValueChange={handleVersionChange}>
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="version">Select Version to Edit</Label>
+              <Select 
+                value={selectedVersion} 
+                onValueChange={handleVersionChange}
+                disabled={isNewVersion}
+              >
                 <SelectTrigger id="version">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {summary.versions?.map((v: SummaryVersion) => (
                     <SelectItem key={v.version} value={v.version}>
-                      {v.version}
+                      {v.version} {v.tags.length > 0 && `(${v.tags.join(', ')})`}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex items-center gap-2 pt-6">
+            <div className="flex items-center gap-2">
               <Checkbox
                 id="newVersion"
                 checked={isNewVersion}
                 onCheckedChange={(checked) => setIsNewVersion(checked as boolean)}
               />
-              <Label htmlFor="newVersion" className="cursor-pointer">
-                Save as new version
+              <Label htmlFor="newVersion" className="cursor-pointer text-sm">
+                Save as new version instead of updating {selectedVersion}
               </Label>
             </div>
           </div>
