@@ -43,11 +43,14 @@ interface AppDataContextType {
   updateTag: (id: string, tag: Partial<Tag>) => void;
   deleteTag: (id: string) => void;
   updateContactInfo: (updates: Partial<AppData['contactInfo']>) => void;
+  lastSaveTime: number;
+  markAsSaved: () => void;
 }
 
 const AppDataContext = createContext<AppDataContextType | undefined>(undefined);
 
 export const AppDataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [lastSaveTime, setLastSaveTime] = useState<number>(Date.now());
   const [data, setData] = useState<AppData>(loadData());
 
   useEffect(() => {
@@ -469,6 +472,10 @@ export const AppDataProvider: React.FC<{ children: ReactNode }> = ({ children })
     }));
   };
 
+  const markAsSaved = () => {
+    setLastSaveTime(Date.now());
+  };
+
   return (
     <AppDataContext.Provider
       value={{
@@ -512,6 +519,8 @@ export const AppDataProvider: React.FC<{ children: ReactNode }> = ({ children })
         updateTag,
         deleteTag,
         updateContactInfo,
+        lastSaveTime,
+        markAsSaved,
       }}
     >
       {children}

@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Home, Tag, Layers, Building2, Settings, MessageSquare } from 'lucide-react';
+import { Home, Tag, Layers, Building2, Settings, MessageSquare, AlertCircle } from 'lucide-react';
+import { useAppData } from '@/contexts/AppDataContext';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -9,6 +10,21 @@ interface AppLayoutProps {
 
 const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const location = useLocation();
+  const { lastSaveTime } = useAppData();
+  const [showReminder, setShowReminder] = useState(false);
+
+  useEffect(() => {
+    const checkSaveTime = () => {
+      const timeSinceLastSave = Date.now() - lastSaveTime;
+      const twoMinutes = 2 * 60 * 1000;
+      setShowReminder(timeSinceLastSave > twoMinutes);
+    };
+
+    checkSaveTime();
+    const interval = setInterval(checkSaveTime, 10000); // Check every 10 seconds
+
+    return () => clearInterval(interval);
+  }, [lastSaveTime]);
 
   const navItems = [
     { path: '/', label: 'Resume Editor', icon: Home },
@@ -57,7 +73,15 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         </div>
 
         <div className="border-t border-sidebar-border p-4 space-y-2">
-          <p className="text-xs text-muted-foreground">Auto-saved 1 min ago</p>
+          {showReminder && (
+            <div className="flex items-center gap-2 p-2 rounded-md bg-yellow-500/10 border border-yellow-500/20 text-yellow-600 dark:text-yellow-500">
+              <AlertCircle className="h-4 w-4 flex-shrink-0" />
+              <p className="text-xs">
+                Don't forget to <Link to="/settings" className="font-medium underline">save & download</Link> your JSON backup
+              </p>
+            </div>
+          )}
+          <p className="text-xs text-muted-foreground">Auto-saved locally</p>
         </div>
       </aside>
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Save, Download, ChevronDown } from 'lucide-react';
 import { useAppData } from '@/contexts/AppDataContext';
@@ -6,6 +6,7 @@ import { SaveVersionDialog } from '@/components/dialogs/SaveVersionDialog';
 import { useToast } from '@/hooks/use-toast';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { exportToCSV, exportToPDF, exportToDOCX } from '@/utils/exportResume';
+import { exportData } from '@/lib/storage';
 
 interface ResumePreviewProps {
   onExport?: () => void;
@@ -14,7 +15,7 @@ interface ResumePreviewProps {
 const ResumePreview: React.FC<ResumePreviewProps> = ({ 
   onExport 
 }) => {
-  const { data, saveResumeVersion, updateResumeVersion } = useAppData();
+  const { data, saveResumeVersion, updateResumeVersion, markAsSaved } = useAppData();
   const { toast } = useToast();
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
 
@@ -46,6 +47,15 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
       });
       toast({ title: 'New resume version created' });
     }
+    
+    // Auto-download JSON backup
+    exportData(data);
+    markAsSaved();
+    toast({ 
+      title: 'Backup saved', 
+      description: 'JSON backup file has been downloaded',
+      duration: 2000 
+    });
   };
   
   const selectedSummary = (data.summaries || []).find(s => s.isSelected);

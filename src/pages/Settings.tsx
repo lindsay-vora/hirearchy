@@ -11,13 +11,14 @@ import { useToast } from '@/hooks/use-toast';
 import { AppData } from '@/types';
 
 const Settings: React.FC = () => {
-  const { data, updateData, updateContactInfo } = useAppData();
+  const { data, updateData, updateContactInfo, markAsSaved } = useAppData();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleExport = () => {
     try {
       exportData(data);
+      markAsSaved();
       toast({
         title: 'Data exported',
         description: 'Your data has been downloaded as a JSON file.',
