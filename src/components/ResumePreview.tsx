@@ -99,9 +99,19 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
       >
         <div className="max-w-[600px] mx-auto">
           <div className="mb-4">
-            <h1 className="text-2xl font-bold">John Doe</h1>
-            <p className="text-sm">john.doe@email.com • (555) 123-4567 •</p>
-            <p className="text-sm">San Francisco, CA</p>
+            {data.contactInfo.showName && (
+              <h1 className="text-2xl font-bold">{data.contactInfo.name}</h1>
+            )}
+            <div className="text-sm">
+              {[
+                data.contactInfo.showEmail && data.contactInfo.email,
+                data.contactInfo.showPhone && data.contactInfo.phone,
+                data.contactInfo.showWebsite && data.contactInfo.website,
+              ].filter(Boolean).join(' • ')}
+            </div>
+            {data.contactInfo.showLocation && (
+              <p className="text-sm">{data.contactInfo.location}</p>
+            )}
           </div>
 
           <hr className="border-t-2 border-black my-4" />

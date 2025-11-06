@@ -98,6 +98,18 @@ const defaultData: AppData = {
   skills: [],
   certifications: [],
   resumeVersions: [],
+  contactInfo: {
+    name: 'Eleanor Ripley',
+    email: 'eleanor.ripley@email.com',
+    phone: '(555) 123-4567',
+    website: 'www.eleanorripley.com',
+    location: 'San Francisco, CA',
+    showName: true,
+    showEmail: true,
+    showPhone: true,
+    showWebsite: true,
+    showLocation: true,
+  },
   currentEditing: {
     resumeName: 'Software Engineering - FAANG',
   },
@@ -118,6 +130,20 @@ export const loadData = (): AppData => {
       if (!parsedData.education) parsedData.education = [];
       if (!parsedData.skills) parsedData.skills = [];
       if (!parsedData.certifications) parsedData.certifications = [];
+      if (!parsedData.contactInfo) {
+        parsedData.contactInfo = {
+          name: 'Eleanor Ripley',
+          email: 'eleanor.ripley@email.com',
+          phone: '(555) 123-4567',
+          website: 'www.eleanorripley.com',
+          location: 'San Francisco, CA',
+          showName: true,
+          showEmail: true,
+          showPhone: true,
+          showWebsite: true,
+          showLocation: true,
+        };
+      }
       return parsedData;
     }
   } catch (error) {
@@ -163,6 +189,20 @@ export const importData = (file: File): Promise<AppData> => {
         if (!data.education) data.education = [];
         if (!data.skills) data.skills = [];
         if (!data.certifications) data.certifications = [];
+        if (!data.contactInfo) {
+          data.contactInfo = {
+            name: 'Eleanor Ripley',
+            email: 'eleanor.ripley@email.com',
+            phone: '(555) 123-4567',
+            website: 'www.eleanorripley.com',
+            location: 'San Francisco, CA',
+            showName: true,
+            showEmail: true,
+            showPhone: true,
+            showWebsite: true,
+            showLocation: true,
+          };
+        }
         resolve(data);
       } catch (error) {
         reject(new Error('Invalid JSON file'));

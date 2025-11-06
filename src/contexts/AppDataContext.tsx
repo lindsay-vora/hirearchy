@@ -42,6 +42,7 @@ interface AppDataContextType {
   addTag: (tag: Omit<Tag, 'id' | 'createdAt'>) => void;
   updateTag: (id: string, tag: Partial<Tag>) => void;
   deleteTag: (id: string) => void;
+  updateContactInfo: (updates: Partial<AppData['contactInfo']>) => void;
 }
 
 const AppDataContext = createContext<AppDataContextType | undefined>(undefined);
@@ -461,6 +462,13 @@ export const AppDataProvider: React.FC<{ children: ReactNode }> = ({ children })
     }));
   };
 
+  const updateContactInfo = (updates: Partial<AppData['contactInfo']>) => {
+    setData(prev => ({
+      ...prev,
+      contactInfo: { ...prev.contactInfo, ...updates },
+    }));
+  };
+
   return (
     <AppDataContext.Provider
       value={{
@@ -503,6 +511,7 @@ export const AppDataProvider: React.FC<{ children: ReactNode }> = ({ children })
         addTag,
         updateTag,
         deleteTag,
+        updateContactInfo,
       }}
     >
       {children}

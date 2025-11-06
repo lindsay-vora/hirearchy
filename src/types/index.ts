@@ -109,6 +109,19 @@ export interface ResumeVersion {
   updatedAt: string;
 }
 
+export interface ContactInfo {
+  name: string;
+  email: string;
+  phone: string;
+  website: string;
+  location: string;
+  showName: boolean;
+  showEmail: boolean;
+  showPhone: boolean;
+  showWebsite: boolean;
+  showLocation: boolean;
+}
+
 export interface AppData {
   companies: Company[];
   bullets: Bullet[];
@@ -118,6 +131,7 @@ export interface AppData {
   skills: Skill[];
   certifications: Certification[];
   resumeVersions: ResumeVersion[];
+  contactInfo: ContactInfo;
   currentEditing: {
     resumeVersionId?: string;
     resumeName: string;

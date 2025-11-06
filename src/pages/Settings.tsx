@@ -1,6 +1,9 @@
 import React, { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { Download, Upload } from 'lucide-react';
 import { useAppData } from '@/contexts/AppDataContext';
 import { exportData, importData } from '@/lib/storage';
@@ -8,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AppData } from '@/types';
 
 const Settings: React.FC = () => {
-  const { data, updateData } = useAppData();
+  const { data, updateData, updateContactInfo } = useAppData();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -67,6 +70,121 @@ const Settings: React.FC = () => {
         </div>
 
         <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Contact Information</CardTitle>
+              <CardDescription>
+                Edit your contact details that appear on your resume
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 space-y-2 mr-4">
+                    <Label htmlFor="name">Name</Label>
+                    <Input
+                      id="name"
+                      value={data.contactInfo.name}
+                      onChange={(e) => updateContactInfo({ name: e.target.value })}
+                      placeholder="Your full name"
+                    />
+                  </div>
+                  <div className="flex items-center space-x-2 pt-6">
+                    <Switch
+                      id="show-name"
+                      checked={data.contactInfo.showName}
+                      onCheckedChange={(checked) => updateContactInfo({ showName: checked })}
+                    />
+                    <Label htmlFor="show-name" className="text-sm">Show</Label>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 space-y-2 mr-4">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={data.contactInfo.email}
+                      onChange={(e) => updateContactInfo({ email: e.target.value })}
+                      placeholder="your.email@example.com"
+                    />
+                  </div>
+                  <div className="flex items-center space-x-2 pt-6">
+                    <Switch
+                      id="show-email"
+                      checked={data.contactInfo.showEmail}
+                      onCheckedChange={(checked) => updateContactInfo({ showEmail: checked })}
+                    />
+                    <Label htmlFor="show-email" className="text-sm">Show</Label>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 space-y-2 mr-4">
+                    <Label htmlFor="phone">Phone</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={data.contactInfo.phone}
+                      onChange={(e) => updateContactInfo({ phone: e.target.value })}
+                      placeholder="(555) 123-4567"
+                    />
+                  </div>
+                  <div className="flex items-center space-x-2 pt-6">
+                    <Switch
+                      id="show-phone"
+                      checked={data.contactInfo.showPhone}
+                      onCheckedChange={(checked) => updateContactInfo({ showPhone: checked })}
+                    />
+                    <Label htmlFor="show-phone" className="text-sm">Show</Label>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 space-y-2 mr-4">
+                    <Label htmlFor="website">Website</Label>
+                    <Input
+                      id="website"
+                      type="url"
+                      value={data.contactInfo.website}
+                      onChange={(e) => updateContactInfo({ website: e.target.value })}
+                      placeholder="www.yourwebsite.com"
+                    />
+                  </div>
+                  <div className="flex items-center space-x-2 pt-6">
+                    <Switch
+                      id="show-website"
+                      checked={data.contactInfo.showWebsite}
+                      onCheckedChange={(checked) => updateContactInfo({ showWebsite: checked })}
+                    />
+                    <Label htmlFor="show-website" className="text-sm">Show</Label>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 space-y-2 mr-4">
+                    <Label htmlFor="location">Location</Label>
+                    <Input
+                      id="location"
+                      value={data.contactInfo.location}
+                      onChange={(e) => updateContactInfo({ location: e.target.value })}
+                      placeholder="City, State"
+                    />
+                  </div>
+                  <div className="flex items-center space-x-2 pt-6">
+                    <Switch
+                      id="show-location"
+                      checked={data.contactInfo.showLocation}
+                      onCheckedChange={(checked) => updateContactInfo({ showLocation: checked })}
+                    />
+                    <Label htmlFor="show-location" className="text-sm">Show</Label>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <CardTitle>Data Management</CardTitle>
