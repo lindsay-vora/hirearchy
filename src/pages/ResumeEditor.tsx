@@ -44,7 +44,7 @@ const DraggableBullet: React.FC<DraggableBulletProps> = ({ bullet, onToggle, onE
   };
 
   const currentVersion = bullet.selectedVersion || bullet.version;
-  const versionData = bullet.versions?.find((v: any) => v.version === currentVersion) || { content: bullet.content };
+  const versionData = bullet.versions?.find((v: any) => v.version === currentVersion) || { content: bullet.content, tags: bullet.tags || [] };
 
   return (
     <div ref={setNodeRef} style={style} className={`border ${bullet.isSelected ? 'border-2 border-primary' : 'border-border'} rounded-lg p-3 bg-card`}>
@@ -53,7 +53,7 @@ const DraggableBullet: React.FC<DraggableBulletProps> = ({ bullet, onToggle, onE
         <div className="flex-1 min-w-0">
           <p className="text-sm mb-2">{versionData.content}</p>
           <div className="flex flex-wrap items-center gap-1 mb-2">
-            {bullet.tags.map((tagName: string) => {
+            {(versionData.tags || []).map((tagName: string) => {
               const tag = tags.find(t => t.name === tagName);
               return (
                 <Badge key={tagName} variant="secondary" className="text-xs">
@@ -605,39 +605,79 @@ const ResumeEditor: React.FC = () => {
                 </div>
 
                 <div className="space-y-4 max-w-3xl">
-                  {(data.summaries || []).map((summary) => (
-                    <div key={summary.id} className={`border ${summary.isSelected ? 'border-2 border-primary' : 'border-border'} rounded-lg p-4 bg-card ${!summary.isSelected && 'opacity-70'}`}>
-                      <div className="flex items-start gap-3">
-                        <Checkbox 
-                          checked={summary.isSelected} 
-                          onCheckedChange={() => selectSummary(summary.id)}
-                          className="mt-1" 
-                        />
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="font-semibold">{summary.name}</span>
-                            <Badge variant="secondary" className="text-xs">{summary.version}</Badge>
-                          </div>
-                          <p className="text-sm mb-3 cursor-pointer hover:text-primary" onClick={() => handleEditSummary(summary)}>
-                            {summary.content}
-                          </p>
-                          <div className="flex gap-2">
-                            <Button variant="ghost" size="sm" onClick={() => handleEditSummary(summary)}>
-                              <Pencil className="h-3 w-3 mr-1" />
-                              Edit
-                            </Button>
-                            <Button variant="ghost" size="sm" onClick={() => handleDuplicateSummary(summary)}>
-                              <Copy className="h-3 w-3 mr-1" />
-                              Duplicate
-                            </Button>
-                            <Button variant="ghost" size="sm" className="text-destructive" onClick={() => handleDeleteSummary(summary)}>
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
+                  {(data.summaries || []).map((summary) => {
+                    const currentVersion = summary.selectedVersion || summary.version;
+                    const versionData = summary.versions?.find((v: any) => v.version === currentVersion) || { content: summary.content, tags: summary.tags || [] };
+                    
+                    return (
+                      <div key={summary.id} className={`border ${summary.isSelected ? 'border-2 border-primary' : 'border-border'} rounded-lg p-4 bg-card ${!summary.isSelected && 'opacity-70'}`}>
+                        <div className="flex items-start gap-3">
+                          <Checkbox 
+                            checked={summary.isSelected} 
+                            onCheckedChange={() => selectSummary(summary.id)}
+                            className="mt-1" 
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="font-semibold">{summary.name}</span>
+                              <Badge variant="secondary" className="text-xs">{currentVersion}</Badge>
+                            </div>
+                            <p className="text-sm mb-3 cursor-pointer hover:text-primary" onClick={() => handleEditSummary(summary)}>
+                              {versionData.content}
+                            </p>
+                            <div className="flex flex-wrap items-center gap-1 mb-3">
+                              {(versionData.tags || []).map((tagName: string) => {
+                                const tag = (data.tags || []).find(t => t.name === tagName);
+                                return (
+                                  <Badge key={tagName} variant="secondary" className="text-xs">
+                                    {tag && <span className="w-2 h-2 rounded-full mr-1" style={{ backgroundColor: tag.color }}></span>}
+                                    {tagName}
+                                  </Badge>
+                                );
+                              })}
+                            </div>
+                            <div className="flex items-center gap-2 mb-2">
+                              {summary.versions && summary.versions.length > 1 && (
+                                <Select 
+                                  value={currentVersion} 
+                                  onValueChange={(version) => {
+                                    const newVersionData = summary.versions.find((v: any) => v.version === version);
+                                    if (newVersionData) {
+                                      updateSummary(summary.id, newVersionData.content, newVersionData.tags, version);
+                                    }
+                                  }}
+                                >
+                                  <SelectTrigger className="h-6 text-xs w-20">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {summary.versions.map((v: any) => (
+                                      <SelectItem key={v.version} value={v.version} className="text-xs">
+                                        {v.version}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              )}
+                            </div>
+                            <div className="flex gap-2">
+                              <Button variant="ghost" size="sm" onClick={() => handleEditSummary(summary)}>
+                                <Pencil className="h-3 w-3 mr-1" />
+                                Edit
+                              </Button>
+                              <Button variant="ghost" size="sm" onClick={() => handleDuplicateSummary(summary)}>
+                                <Copy className="h-3 w-3 mr-1" />
+                                Duplicate
+                              </Button>
+                              <Button variant="ghost" size="sm" className="text-destructive" onClick={() => handleDeleteSummary(summary)}>
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </TabsContent>
