@@ -97,7 +97,7 @@ export const AppDataProvider: React.FC<{ children: ReactNode }> = ({ children })
         if (b.id === id) {
           const updated = { ...b, ...updates };
           // If content is being updated and versions exist, create new version
-          if (updates.content && b.content !== updates.content && b.versions) {
+          if (updates.content && b.content !== updates.content && b.versions && !updates.versions) {
             const newVersion = `v${b.versions.length + 1}`;
             updated.versions = [
               ...b.versions,

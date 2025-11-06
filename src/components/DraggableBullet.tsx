@@ -34,7 +34,7 @@ export const DraggableBullet: React.FC<DraggableBulletProps> = ({
   };
 
   const currentVersion = bullet.selectedVersion || bullet.version;
-  const versionData = bullet.versions?.find((v: any) => v.version === currentVersion) || { content: bullet.content };
+  const versionData = bullet.versions?.find((v: any) => v.version === currentVersion) || { content: bullet.content, tags: bullet.tags || [] };
 
   return (
     <div ref={setNodeRef} style={style} className={`border ${bullet.isSelected ? 'border-2 border-primary' : 'border-border'} rounded-lg p-3 bg-card`}>
@@ -43,7 +43,7 @@ export const DraggableBullet: React.FC<DraggableBulletProps> = ({
         <div className="flex-1 min-w-0">
           <p className="text-sm mb-2">{versionData.content}</p>
           <div className="flex flex-wrap items-center gap-1 mb-2">
-            {bullet.tags.map((tagName: string) => {
+            {(versionData.tags || []).map((tagName: string) => {
               const tag = tags.find(t => t.name === tagName);
               return (
                 <Badge key={tagName} variant="secondary" className="text-xs">
