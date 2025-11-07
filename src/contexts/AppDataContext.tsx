@@ -452,17 +452,76 @@ export const AppDataProvider: React.FC<{ children: ReactNode }> = ({ children })
   };
 
   const updateTag = (id: string, updates: Partial<Tag>) => {
-    setData(prev => ({
-      ...prev,
-      tags: prev.tags.map(t => t.id === id ? { ...t, ...updates } : t),
-    }));
+    setData(prev => {
+      const oldTag = prev.tags.find(t => t.id === id);
+      const updatedTags = prev.tags.map(t => t.id === id ? { ...t, ...updates } : t);
+      
+      // If tag name changed, update references in bullets and summaries
+      if (oldTag && updates.name && oldTag.name !== updates.name) {
+        const updatedBullets = prev.bullets.map(bullet => ({
+          ...bullet,
+          tags: bullet.tags.map(t => t === oldTag.name ? updates.name! : t),
+          versions: bullet.versions?.map(v => ({
+            ...v,
+            tags: v.tags.map(t => t === oldTag.name ? updates.name! : t),
+          })),
+        }));
+        
+        const updatedSummaries = prev.summaries.map(summary => ({
+          ...summary,
+          tags: summary.tags.map(t => t === oldTag.name ? updates.name! : t),
+          versions: summary.versions?.map(v => ({
+            ...v,
+            tags: v.tags.map(t => t === oldTag.name ? updates.name! : t),
+          })),
+        }));
+        
+        return {
+          ...prev,
+          tags: updatedTags,
+          bullets: updatedBullets,
+          summaries: updatedSummaries,
+        };
+      }
+      
+      return {
+        ...prev,
+        tags: updatedTags,
+      };
+    });
   };
 
   const deleteTag = (id: string) => {
-    setData(prev => ({
-      ...prev,
-      tags: prev.tags.filter(t => t.id !== id),
-    }));
+    setData(prev => {
+      const deletedTag = prev.tags.find(t => t.id === id);
+      if (!deletedTag) return prev;
+      
+      // Remove tag references from bullets and summaries
+      const updatedBullets = prev.bullets.map(bullet => ({
+        ...bullet,
+        tags: bullet.tags.filter(t => t !== deletedTag.name),
+        versions: bullet.versions?.map(v => ({
+          ...v,
+          tags: v.tags.filter(t => t !== deletedTag.name),
+        })),
+      }));
+      
+      const updatedSummaries = prev.summaries.map(summary => ({
+        ...summary,
+        tags: summary.tags.filter(t => t !== deletedTag.name),
+        versions: summary.versions?.map(v => ({
+          ...v,
+          tags: v.tags.filter(t => t !== deletedTag.name),
+        })),
+      }));
+      
+      return {
+        ...prev,
+        tags: prev.tags.filter(t => t.id !== id),
+        bullets: updatedBullets,
+        summaries: updatedSummaries,
+      };
+    });
   };
 
   const updateContactInfo = (updates: Partial<AppData['contactInfo']>) => {

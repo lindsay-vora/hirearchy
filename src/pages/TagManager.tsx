@@ -5,40 +5,30 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { useAppData } from '@/contexts/AppDataContext';
+import { Tag } from '@/types';
 
 const TagManager: React.FC = () => {
-  const [tags, setTags] = useState([
-    { id: '1', name: 'Leadership', color: '#3b82f6' },
-    { id: '2', name: 'Backend', color: '#22c55e' },
-    { id: '3', name: 'Frontend', color: '#a855f7' },
-    { id: '4', name: 'Cloud', color: '#f97316' },
-    { id: '5', name: 'DevOps', color: '#ec4899' },
-    { id: '6', name: 'Mobile', color: '#06b6d4' },
-  ]);
+  const { data, addTag, updateTag, deleteTag } = useAppData();
 
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [editingTag, setEditingTag] = useState<{ id: string; name: string; color: string } | null>(null);
+  const [editingTag, setEditingTag] = useState<Tag | null>(null);
   const [deleteTagId, setDeleteTagId] = useState<string | null>(null);
   const [tagName, setTagName] = useState('');
   const [tagColor, setTagColor] = useState('#3b82f6');
 
   const handleAddTag = () => {
     if (tagName.trim()) {
-      const newTag = {
-        id: Date.now().toString(),
-        name: tagName,
-        color: tagColor,
-      };
-      setTags([...tags, newTag]);
+      addTag({ name: tagName, color: tagColor });
       setTagName('');
       setTagColor('#3b82f6');
       setShowAddDialog(false);
     }
   };
 
-  const handleEditTag = (tag: { id: string; name: string; color: string }) => {
+  const handleEditTag = (tag: Tag) => {
     setEditingTag(tag);
     setTagName(tag.name);
     setTagColor(tag.color);
@@ -47,11 +37,7 @@ const TagManager: React.FC = () => {
 
   const handleSaveEdit = () => {
     if (editingTag && tagName.trim()) {
-      setTags(tags.map(tag =>
-        tag.id === editingTag.id
-          ? { ...tag, name: tagName, color: tagColor }
-          : tag
-      ));
+      updateTag(editingTag.id, { name: tagName, color: tagColor });
       setEditingTag(null);
       setTagName('');
       setTagColor('#3b82f6');
@@ -66,7 +52,7 @@ const TagManager: React.FC = () => {
 
   const handleConfirmDelete = () => {
     if (deleteTagId) {
-      setTags(tags.filter(tag => tag.id !== deleteTagId));
+      deleteTag(deleteTagId);
       setDeleteTagId(null);
       setShowDeleteDialog(false);
     }
@@ -90,7 +76,7 @@ const TagManager: React.FC = () => {
         <div className="border border-border rounded-lg p-6">
           <h2 className="font-semibold mb-4">Manage Tags</h2>
           <div className="space-y-3">
-            {tags.map(tag => (
+            {data.tags.map(tag => (
               <div
                 key={tag.id}
                 className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors"
