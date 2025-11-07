@@ -3,6 +3,9 @@ import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Home, Tag, Layers, Building2, Settings, MessageSquare, AlertCircle } from "lucide-react";
 import { useAppData } from "@/contexts/AppDataContext";
+import { SaveVersionDialog } from "@/components/dialogs/SaveVersionDialog";
+import { exportData } from "@/lib/storage";
+import { toast } from "sonner";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -10,8 +13,9 @@ interface AppLayoutProps {
 
 const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const location = useLocation();
-  const { lastSaveTime } = useAppData();
+  const { data, lastSaveTime, saveResumeVersion, updateResumeVersion, markAsSaved } = useAppData();
   const [showReminder, setShowReminder] = useState(false);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
 
   useEffect(() => {
     const checkSaveTime = () => {
@@ -25,6 +29,36 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
     return () => clearInterval(interval);
   }, [lastSaveTime]);
+
+  const handleSaveVersion = (
+    action: 'overwrite' | 'new',
+    details?: { name: string; description: string; tags: string[] }
+  ) => {
+    if (action === 'overwrite' && data.currentEditing?.resumeVersionId) {
+      updateResumeVersion(data.currentEditing.resumeVersionId, {
+        summaryId: (data.summaries || []).find(s => s.isSelected)?.id,
+        selectedBullets: (data.bullets || []).filter(b => b.isSelected).map(b => b.id),
+        selectedCompanies: (data.companies || []).filter(c => c.isVisible !== false).map(c => c.id),
+      });
+      toast.success('Resume version updated');
+    } else if (action === 'new' && details) {
+      saveResumeVersion({
+        name: details.name,
+        description: details.description,
+        tags: details.tags,
+        summaryId: (data.summaries || []).find(s => s.isSelected)?.id,
+        selectedBullets: (data.bullets || []).filter(b => b.isSelected).map(b => b.id),
+        selectedCompanies: (data.companies || []).filter(c => c.isVisible !== false).map(c => c.id),
+      });
+      toast.success('Resume version saved');
+    }
+    
+    // Automatically download JSON backup
+    exportData(data);
+    markAsSaved();
+    toast.success('Backup downloaded');
+    setShowSaveDialog(false);
+  };
 
   const navItems = [
     { path: "/", label: "Resume Editor", icon: Home },
@@ -78,9 +112,12 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               <AlertCircle className="h-4 w-4 flex-shrink-0" />
               <p className="text-xs">
                 Don't forget to{" "}
-                <Link to="/settings" className="font-medium underline">
+                <button 
+                  onClick={() => setShowSaveDialog(true)}
+                  className="font-medium underline hover:no-underline"
+                >
                   save & download
-                </Link>{" "}
+                </button>{" "}
                 your JSON backup
               </p>
             </div>
@@ -91,6 +128,14 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
       {/* Main Content */}
       <main className="flex-1 overflow-hidden">{children}</main>
+
+      <SaveVersionDialog
+        open={showSaveDialog}
+        onOpenChange={setShowSaveDialog}
+        currentVersionId={data.currentEditing?.resumeVersionId}
+        currentVersionName={data.currentEditing?.resumeName || 'Untitled Resume'}
+        onSave={handleSaveVersion}
+      />
     </div>
   );
 };
