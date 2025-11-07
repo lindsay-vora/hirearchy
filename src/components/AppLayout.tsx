@@ -122,7 +122,16 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               </p>
             </div>
           )}
-          <p className="text-xs text-muted-foreground">Saved in browser - Save or Download JSON frequently</p>
+          <p className="text-xs text-muted-foreground">
+            Saved in browser -{" "}
+            <button 
+              onClick={() => setShowSaveDialog(true)}
+              className="underline hover:no-underline"
+            >
+              Save or Download JSON
+            </button>{" "}
+            frequently
+          </p>
         </div>
       </aside>
 
