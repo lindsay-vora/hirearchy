@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { cn } from '@/lib/utils';
-import { Home, Tag, Layers, Building2, Settings, MessageSquare, AlertCircle } from 'lucide-react';
-import { useAppData } from '@/contexts/AppDataContext';
+import React, { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { Home, Tag, Layers, Building2, Settings, MessageSquare, AlertCircle } from "lucide-react";
+import { useAppData } from "@/contexts/AppDataContext";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -27,11 +27,11 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   }, [lastSaveTime]);
 
   const navItems = [
-    { path: '/', label: 'Resume Editor', icon: Home },
-    { path: '/tags', label: 'Tag Manager', icon: Tag },
-    { path: '/saved', label: 'Saved Resumes', icon: Layers },
-    { path: '/settings', label: 'Settings', icon: Settings },
-    { path: '/feedback', label: 'Support', icon: MessageSquare },
+    { path: "/", label: "Resume Editor", icon: Home },
+    { path: "/tags", label: "Tag Manager", icon: Tag },
+    { path: "/saved", label: "Saved Resumes", icon: Layers },
+    { path: "/settings", label: "Settings", icon: Settings },
+    { path: "/feedback", label: "Support", icon: MessageSquare },
   ];
 
   return (
@@ -45,14 +45,14 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             <span className="text-xs text-muted-foreground">Beta</span>
           </div>
         </div>
-        
+
         <div className="flex-1 py-4">
           <p className="px-6 text-xs font-semibold text-muted-foreground mb-2">Navigation</p>
           <nav className="space-y-1 px-3">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
-              
+
               return (
                 <Link
                   key={item.path}
@@ -61,7 +61,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                     "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                     isActive
                       ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                      : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+                      : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground",
                   )}
                 >
                   <Icon className="h-5 w-5" />
@@ -77,18 +77,20 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             <div className="flex items-center gap-2 p-2 rounded-md bg-yellow-500/10 border border-yellow-500/20 text-yellow-600 dark:text-yellow-500">
               <AlertCircle className="h-4 w-4 flex-shrink-0" />
               <p className="text-xs">
-                Don't forget to <Link to="/settings" className="font-medium underline">save & download</Link> your JSON backup
+                Don't forget to{" "}
+                <Link to="/settings" className="font-medium underline">
+                  save & download
+                </Link>{" "}
+                your JSON backup
               </p>
             </div>
           )}
-          <p className="text-xs text-muted-foreground">Auto-saved locally</p>
+          <p className="text-xs text-muted-foreground">Saved in browser - Save or Download JSON frequently</p>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-hidden">
-        {children}
-      </main>
+      <main className="flex-1 overflow-hidden">{children}</main>
     </div>
   );
 };
