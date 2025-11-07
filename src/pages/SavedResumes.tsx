@@ -7,7 +7,7 @@ import { useAppData } from '@/contexts/AppDataContext';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { ConfirmDialog } from '@/components/dialogs/ConfirmDialog';
-import { EditDialog } from '@/components/dialogs/EditDialog';
+import { ResumeEditDialog } from '@/components/dialogs/ResumeEditDialog';
 
 const SavedResumes: React.FC = () => {
   const { data, loadResumeVersion, deleteResumeVersion, saveResumeVersion, updateResumeVersion } = useAppData();
@@ -254,43 +254,26 @@ const SavedResumes: React.FC = () => {
         <ConfirmDialog {...confirmDialog} onOpenChange={(open) => !open && setConfirmDialog(null)} />
       )}
       {editDialog && (
-        <EditDialog
+        <ResumeEditDialog
           open={editDialog.open}
           onOpenChange={(open) => !open && setEditDialog(null)}
           title={editDialog.action === 'edit' ? 'Edit Resume' : editDialog.action === 'add' ? 'Add New Resume' : 'Copy Resume'}
-          fields={[
-            { 
-              name: 'name', 
-              label: 'Resume Name', 
-              value: editDialog.action === 'edit' ? editDialog.data.name : editDialog.action === 'copy' ? `${editDialog.data.name} (Copy)` : '' 
-            },
-            { 
-              name: 'description', 
-              label: 'Description', 
-              value: editDialog.data.description || '', 
-              type: 'textarea' 
-            },
-            { 
-              name: 'tags', 
-              label: 'Tags (comma-separated)', 
-              value: editDialog.data.tags?.join(', ') || '' 
-            },
-          ]}
+          initialName={editDialog.action === 'edit' ? editDialog.data.name : editDialog.action === 'copy' ? `${editDialog.data.name} (Copy)` : ''}
+          initialDescription={editDialog.data.description || ''}
+          initialTags={editDialog.data.tags || []}
           onSave={(values) => {
-            const tags = values.tags.split(',').map(t => t.trim()).filter(Boolean);
-            
             if (editDialog.action === 'edit') {
               updateResumeVersion(editDialog.data.id, {
                 name: values.name,
                 description: values.description,
-                tags,
+                tags: values.tags,
               });
               toast({ title: 'Resume updated' });
             } else if (editDialog.action === 'add') {
               saveResumeVersion({
                 name: values.name,
                 description: values.description,
-                tags,
+                tags: values.tags,
                 summaryId: (data.summaries || []).find(s => s.isSelected)?.id || '',
                 selectedBullets: (data.bullets || []).filter(b => b.isSelected).map(b => b.id),
                 selectedCompanies: (data.companies || []).filter(c => c.isVisible !== false).map(c => c.id),
@@ -302,7 +285,7 @@ const SavedResumes: React.FC = () => {
                 saveResumeVersion({
                   name: values.name,
                   description: values.description,
-                  tags,
+                  tags: values.tags,
                   summaryId: version.summaryId,
                   selectedBullets: version.selectedBullets,
                   selectedCompanies: version.selectedCompanies,
