@@ -56,11 +56,11 @@ export const ResizablePanel: React.FC<ResizablePanelProps> = ({
   return (
     <div
       ref={panelRef}
-      className={cn('relative flex-shrink-0', className)}
+      className={cn('relative flex-shrink-0 bg-muted', className)}
       style={{ width: `${width}px` }}
     >
       <div
-        className="absolute left-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/50 transition-colors z-10 group"
+        className="absolute left-0 top-0 bottom-0 z-10 w-1 cursor-col-resize bg-border transition-colors hover:bg-primary group"
         onMouseDown={() => setIsResizing(true)}
       >
         <div className="absolute inset-y-0 -left-1 -right-1" />
