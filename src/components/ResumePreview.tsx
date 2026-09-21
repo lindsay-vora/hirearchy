@@ -20,7 +20,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
 
   if (!data) {
-    return <div className="border-l border-border bg-background flex items-center justify-center h-full">
+    return <div className="border-l border-border bg-muted flex items-center justify-center h-full">
       <p className="text-muted-foreground">Loading...</p>
     </div>;
   }
@@ -67,10 +67,15 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
   };
 
   return (
-    <div className="border-l border-border bg-background flex flex-col h-full">
-      <div className="border-b border-border p-4">
-        <h2 className="text-xl font-bold mb-1">Resume Preview</h2>
-        <p className="text-sm text-muted-foreground mb-3">Live preview of your resume</p>
+    <div className="border-l border-border bg-muted flex flex-col h-full">
+      <div className="border-b border-border bg-card px-5 py-4">
+        <div className="mb-3 flex items-center gap-2">
+          <span className="h-2 w-2 rounded-full bg-primary" />
+          <div>
+            <h2 className="text-base font-semibold">Resume Preview</h2>
+            <p className="text-xs text-muted-foreground">Updates as you edit</p>
+          </div>
+        </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={() => setSaveDialogOpen(true)}>
             <Save className="h-4 w-4 mr-2" />
@@ -99,15 +104,15 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
         </div>
       </div>
 
-      <div 
-        className="flex-1 overflow-auto p-8 bg-white text-black"
+      <div
+        className="flex-1 overflow-auto p-6 text-foreground"
         style={{
           fontFamily: 'Georgia, serif',
           fontSize: '11pt',
           lineHeight: 1.5,
         }}
       >
-        <div className="max-w-[600px] mx-auto">
+        <div className="mx-auto min-h-[700px] max-w-[600px] border border-border bg-card p-8 shadow-[0_16px_40px_-24px_hsl(var(--foreground)/0.25)]">
           <div className="mb-4">
             {data.contactInfo.showName && (
               <h1 className="text-2xl font-bold">{data.contactInfo.name}</h1>
@@ -124,7 +129,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
             )}
           </div>
 
-          <hr className="border-t-2 border-black my-4" />
+          <hr className="border-t-2 border-foreground my-4" />
 
           {selectedSummary && (
             <div className="mb-6">
@@ -192,7 +197,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
                   </div>
                   <p className="text-sm">{edu.institution}</p>
                   {edu.description && (
-                    <p className="text-sm text-gray-700 mt-1">{edu.description}</p>
+                    <p className="text-sm text-muted-foreground mt-1">{edu.description}</p>
                   )}
                 </div>
               ))}
@@ -204,7 +209,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
               <h2 className="text-lg font-bold mb-2">Skills</h2>
               <div className="flex flex-wrap gap-2">
                 {(data.skills || []).map(skill => (
-                  <span key={skill.id} className="px-3 py-1 bg-gray-200 text-sm rounded">
+                  <span key={skill.id} className="rounded-sm bg-secondary px-3 py-1 text-sm">
                     {skill.name}
                   </span>
                 ))}
@@ -228,7 +233,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
           )}
         </div>
 
-        <div className="mt-8 pt-4 border-t border-gray-300 text-center text-xs text-gray-600">
+        <div className="mt-8 border-t border-border pt-4 text-center text-xs text-muted-foreground">
           Showing {visibleCompanies.length} companies • {selectedBullets.length} bullet points
         </div>
       </div>

@@ -85,8 +85,8 @@ export const DraggablePosition: React.FC<DraggablePositionProps> = ({
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="border border-border rounded-lg">
-      <div className="flex items-start gap-2 p-3 bg-muted/20 hover:bg-muted/30 transition-colors">
+    <div ref={setNodeRef} style={style} className="overflow-hidden border-l border-border bg-card">
+      <div className="flex items-start gap-2 p-3 transition-colors hover:bg-muted/60">
         <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing mt-1">
           <GripVertical className="h-4 w-4 text-muted-foreground" />
         </div>
@@ -130,8 +130,8 @@ export const DraggablePosition: React.FC<DraggablePositionProps> = ({
                 const projectVisible = (project as any).isVisible !== false;
                 
                 return (
-                  <div key={project.id} className="border border-border rounded-lg bg-card ml-6">
-                    <div className="flex items-center gap-2 p-3 bg-muted/10">
+            <div key={project.id} className="ml-6 border-l border-border bg-card">
+                    <div className="flex items-center gap-2 bg-muted/50 p-3">
                       <GripVertical className="h-4 w-4 text-muted-foreground cursor-grab" />
                       <Checkbox
                         checked={projectVisible}

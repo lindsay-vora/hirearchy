@@ -36,8 +36,8 @@ export const DraggableCompany: React.FC<DraggableCompanyProps> = ({
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="border border-border rounded-lg">
-      <div className="flex items-center gap-2 p-3 bg-muted/30 hover:bg-muted/50 transition-colors">
+    <div ref={setNodeRef} style={style} className="overflow-hidden rounded-md border border-border bg-card shadow-sm">
+      <div className="flex items-center gap-2 border-l-2 border-l-primary bg-card p-3 transition-colors hover:bg-muted/50">
         <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
           <GripVertical className="h-5 w-5 text-muted-foreground" />
         </div>
@@ -53,7 +53,7 @@ export const DraggableCompany: React.FC<DraggableCompanyProps> = ({
         >
           {expanded ? <ChevronDown className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
         </Button>
-        <Briefcase className="h-5 w-5" />
+        <Briefcase className="h-4 w-4 text-primary" />
         <span className="font-semibold flex-1">{company.name}</span>
         <span className="text-sm text-muted-foreground mr-2">{(company.positions || []).length} positions</span>
         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onAddPosition}>

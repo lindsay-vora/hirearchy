@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Home, Tag, Layers, Building2, Settings, MessageSquare, AlertCircle } from "lucide-react";
+import { FilePenLine, Tag, Layers, Settings, MessageSquare, AlertCircle } from "lucide-react";
 import { useAppData } from "@/contexts/AppDataContext";
 import { SaveVersionDialog } from "@/components/dialogs/SaveVersionDialog";
 import { exportData } from "@/lib/storage";
@@ -61,7 +61,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   };
 
   const navItems = [
-    { path: "/", label: "Resume Editor", icon: Home },
+    { path: "/", label: "Resume Editor", icon: FilePenLine },
     { path: "/tags", label: "Tag Manager", icon: Tag },
     { path: "/saved", label: "Saved Resumes", icon: Layers },
     { path: "/settings", label: "Settings", icon: Settings },
@@ -71,17 +71,17 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   return (
     <div className="flex h-screen bg-background">
       {/* Sidebar */}
-      <aside className="w-64 border-r border-border bg-sidebar flex flex-col">
-        <div className="flex h-16 items-center border-b border-sidebar-border px-6">
-          <Building2 className="h-6 w-6 mr-2" />
-          <div>
-            <h1 className="text-lg font-bold text-sidebar-foreground">Hirearchy</h1>
-            <span className="text-xs text-muted-foreground">Beta</span>
+      <aside className="w-[76px] lg:w-56 border-r border-sidebar-border bg-sidebar flex flex-col shrink-0 transition-[width] duration-200">
+        <div className="flex h-[72px] items-center border-b border-sidebar-border px-5 lg:px-4">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary text-sm font-bold text-primary-foreground">H</div>
+          <div className="ml-3 hidden min-w-0 lg:block">
+            <h1 className="text-[17px] font-semibold text-sidebar-foreground">Hirearchy</h1>
+            <span className="text-[10px] font-medium uppercase text-sidebar-foreground/45">Resume workspace</span>
           </div>
         </div>
 
-        <div className="flex-1 py-4">
-          <p className="px-6 text-xs font-semibold text-muted-foreground mb-2">Navigation</p>
+        <div className="flex-1 py-5">
+          <p className="hidden px-5 text-[10px] font-semibold uppercase text-sidebar-foreground/40 mb-3 lg:block">Workspace</p>
           <nav className="space-y-1 px-3">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -92,27 +92,27 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                   key={item.path}
                   to={item.path}
                   className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                    "flex h-10 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors",
                     isActive
-                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                      : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground",
+                      ? "bg-primary text-primary-foreground"
+                      : "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                   )}
                 >
-                  <Icon className="h-5 w-5" />
-                  {item.label}
+                  <Icon className="h-[18px] w-[18px] shrink-0" />
+                  <span className="hidden lg:block">{item.label}</span>
                 </Link>
               );
             })}
           </nav>
         </div>
 
-        <div className="border-t border-sidebar-border p-4 space-y-2">
+        <div className="border-t border-sidebar-border p-3 lg:p-4 space-y-2">
           {showReminder && (
-            <div className="flex items-center gap-2 p-2 rounded-md bg-yellow-500/10 border border-yellow-500/20 text-yellow-600 dark:text-yellow-500">
+            <div className="hidden items-start gap-2 rounded-md border border-warning/25 bg-warning/10 p-2 text-warning lg:flex">
               <AlertCircle className="h-4 w-4 flex-shrink-0" />
               <p className="text-xs">
                 Don't forget to{" "}
-                <button 
+                <button
                   onClick={() => setShowSaveDialog(true)}
                   className="font-medium underline hover:no-underline"
                 >
@@ -122,7 +122,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               </p>
             </div>
           )}
-          <p className="text-xs text-muted-foreground">
+          <p className="hidden text-xs leading-relaxed text-sidebar-foreground/45 lg:block">
             Saved in browser -{" "}
             <button 
               onClick={() => setShowSaveDialog(true)}
@@ -136,7 +136,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-hidden">{children}</main>
+      <main className="min-w-0 flex-1 overflow-hidden">{children}</main>
 
       <SaveVersionDialog
         open={showSaveDialog}

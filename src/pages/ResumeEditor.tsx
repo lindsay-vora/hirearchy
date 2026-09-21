@@ -546,15 +546,15 @@ const ResumeEditor: React.FC = () => {
   };
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full bg-card">
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="border-b border-border bg-background px-6 py-3 flex items-center justify-between">
+        <div className="flex min-h-[72px] items-center justify-between border-b border-border bg-card px-5 lg:px-7">
           <div className="flex items-center gap-2">
-            <Briefcase className="h-4 w-4" />
-            <span className="text-sm text-muted-foreground">Editing:</span>
-            <span className="font-semibold">{data.currentEditing.resumeName}</span>
+            <Briefcase className="h-4 w-4 text-primary" />
+            <span className="text-xs text-muted-foreground">Editing</span>
+            <span className="max-w-[260px] truncate text-sm font-semibold">{data.currentEditing.resumeName}</span>
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -570,8 +570,8 @@ const ResumeEditor: React.FC = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="experience" className="flex-1 flex flex-col overflow-hidden">
-          <div className="border-b border-border px-6">
-            <TabsList className="bg-transparent h-12">
+          <div className="border-b border-border bg-card px-5 lg:px-7">
+            <TabsList className="h-12 bg-transparent p-0">
               <TabsTrigger value="summary" className="gap-2">
                 <AlignJustify className="h-4 w-4" />
                 Summary
@@ -587,13 +587,13 @@ const ResumeEditor: React.FC = () => {
             </TabsList>
           </div>
 
-          <div className="flex-1 overflow-auto">
+          <div className="flex-1 overflow-auto bg-background">
             {/* Summary Tab */}
             <TabsContent value="summary" className="m-0 h-full">
-              <div className="p-6">
+              <div className="p-5 lg:p-7">
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <h2 className="text-xl font-bold">Professional Summary</h2>
+                    <h2 className="text-xl font-semibold">Professional Summary</h2>
                     <p className="text-sm text-muted-foreground">
                       Select one summary to include in your resume
                     </p>
@@ -610,7 +610,7 @@ const ResumeEditor: React.FC = () => {
                     const versionData = summary.versions?.find((v: any) => v.version === currentVersion) || { content: summary.content, tags: summary.tags || [] };
                     
                     return (
-                      <div key={summary.id} className={`border ${summary.isSelected ? 'border-2 border-primary' : 'border-border'} rounded-lg p-4 bg-card ${!summary.isSelected && 'opacity-70'}`}>
+                       <div key={summary.id} className={`rounded-md border bg-card p-4 shadow-sm ${summary.isSelected ? 'border-primary ring-1 ring-primary/15' : 'border-border opacity-70'}`}>
                         <div className="flex items-start gap-3">
                           <Checkbox 
                             checked={summary.isSelected} 
@@ -684,10 +684,10 @@ const ResumeEditor: React.FC = () => {
 
             {/* Experience Tab */}
             <TabsContent value="experience" className="m-0 h-full">
-              <div className="p-6">
+              <div className="p-5 lg:p-7">
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <h2 className="text-xl font-bold">Work Experience</h2>
+                    <h2 className="text-xl font-semibold">Work Experience</h2>
                     <p className="text-sm text-muted-foreground">
                       Organize by Company → Position → Project
                     </p>
@@ -698,7 +698,7 @@ const ResumeEditor: React.FC = () => {
                   </Button>
                 </div>
 
-                <div className="space-y-3 max-w-4xl">
+                <div className="max-w-4xl space-y-3">
                   <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleCompanyDragEnd}>
                     <SortableContext items={(data.companies || []).map(c => c.id)} strategy={verticalListSortingStrategy}>
                       {(data.companies || []).map((company) => (
@@ -758,10 +758,10 @@ const ResumeEditor: React.FC = () => {
 
             {/* Other Tab */}
             <TabsContent value="other" className="m-0 h-full">
-              <div className="p-6">
+              <div className="p-5 lg:p-7">
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <h2 className="text-xl font-bold">Education & Skills</h2>
+                    <h2 className="text-xl font-semibold">Education & Skills</h2>
                     <p className="text-sm text-muted-foreground">
                       Add additional resume details
                     </p>
@@ -770,7 +770,7 @@ const ResumeEditor: React.FC = () => {
 
                 <div className="space-y-6 max-w-3xl">
                   {/* Education Section */}
-                  <div className="border border-border rounded-lg p-4">
+                   <div className="rounded-md border border-border bg-card p-4 shadow-sm">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="font-semibold">Education</h3>
                       <Button variant="outline" size="sm" onClick={handleAddEducation}>
@@ -783,7 +783,7 @@ const ResumeEditor: React.FC = () => {
                     ) : (
                       <div className="space-y-3">
                         {(data.education || []).map((edu) => (
-                          <div key={edu.id} className="border border-border rounded-lg p-3">
+                           <div key={edu.id} className="rounded-md border border-border p-3">
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
                                 <h4 className="font-medium">{edu.degree}</h4>
@@ -807,7 +807,7 @@ const ResumeEditor: React.FC = () => {
                   </div>
 
                   {/* Skills Section */}
-                  <div className="border border-border rounded-lg p-4">
+                   <div className="rounded-md border border-border bg-card p-4 shadow-sm">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="font-semibold">Skills</h3>
                       <Button variant="outline" size="sm" onClick={handleAddSkill}>
@@ -820,7 +820,7 @@ const ResumeEditor: React.FC = () => {
                     ) : (
                       <div className="flex flex-wrap gap-2">
                         {(data.skills || []).map((skill) => (
-                          <div key={skill.id} className="flex items-center gap-1 border border-border rounded-lg px-3 py-1">
+                           <div key={skill.id} className="flex items-center gap-1 rounded-md border border-border px-3 py-1">
                             <span className="text-sm">{skill.name}</span>
                             <Button variant="ghost" size="sm" className="h-5 w-5 p-0" onClick={() => handleEditSkill(skill)}>
                               <Pencil className="h-3 w-3" />
@@ -835,7 +835,7 @@ const ResumeEditor: React.FC = () => {
                   </div>
 
                   {/* Certifications Section */}
-                  <div className="border border-border rounded-lg p-4">
+                   <div className="rounded-md border border-border bg-card p-4 shadow-sm">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="font-semibold">Certifications</h3>
                       <Button variant="outline" size="sm" onClick={handleAddCertification}>
@@ -848,7 +848,7 @@ const ResumeEditor: React.FC = () => {
                     ) : (
                       <div className="space-y-3">
                         {(data.certifications || []).map((cert) => (
-                          <div key={cert.id} className="border border-border rounded-lg p-3">
+                           <div key={cert.id} className="rounded-md border border-border p-3">
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
                                 <h4 className="font-medium">{cert.name}</h4>
